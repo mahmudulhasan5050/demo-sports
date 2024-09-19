@@ -4,11 +4,29 @@ import Booking, { IBooking } from '../models/Booking';
 
 //get all
 const allBooking = () => {
-  return Booking.find();
+  return Booking
+  .find()
+  .populate('user', 'name email role')
+  .populate('facility', 'type courtNumber');
 };
 
+//Get by id
+const getBookingById = async(bookingId: string)=>{
+  return await Booking
+  .findById(bookingId).populate('user', 'email')
+  .populate('facility', 'type courtNumber')
+}
+
+//get by date
+const getBookingByDate = async(date: string) =>{
+return await Booking
+.find({date})
+.populate('user', 'name email role')
+.populate('facility', 'type courtNumber')
+}
+
 //create
-const createBooking = async (newBooking: IBooking) => {
+const createAdminBooking = async (newBooking: IBooking) => {
   const saveBooking = await newBooking.save();
   return saveBooking;
 };
@@ -39,7 +57,9 @@ const deleteBooking = async (bookingId: string) => {
 
 export default {
     allBooking,
-    createBooking,
+    getBookingById,
+    getBookingByDate,
+    createAdminBooking,
     updateBooking,
     deleteBooking
 };

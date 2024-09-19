@@ -2,25 +2,47 @@ import mongoose from 'mongoose';
 import { IBooking } from '../models/Booking';
 
 // Function to generate time slots in 30-minute intervals
-export const generateTimeSlots = (open: string, close: string): string[] => {
+export const generateTimeSlots = (
+  open: string,
+  close: string,
+  selectedDate: string
+): string[] => {
   const slots: string[] = [];
-  let [openHour, openMinute] = open.split(':').map(Number);
-  let [closeHour, closeMinute] = close.split(':').map(Number);
+  let openHour = parseInt(open.slice(0, 2));
+  let openMinute = parseInt(open.slice(2));
+  let closeHour = parseInt(close.slice(0, 2));
+  let closeMinute = parseInt(close.slice(2));
 
-  let [openHour1, openMinute1] = open.split(':');
-  console.log(openHour, ':', openMinute);
-  console.log(openHour1, ':', openMinute1);
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date();
+  const todayDate = today.toISOString().split('T')[0];
+
+  // Get the current time in HHMM format
+  const now = new Date();
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  const currentTime = currentHour * 100 + currentMinute;
 
   while (
     openHour < closeHour ||
     (openHour === closeHour && openMinute < closeMinute)
   ) {
-    slots.push(
-      `${String(openHour).padStart(2, '0')}:${String(openMinute).padStart(
-        2,
-        '0'
-      )}`
-    );
+    const slot = `${String(openHour).padStart(2, '0')}${String(
+      openMinute
+    ).padStart(2, '0')}`;
+
+    // Convert slot time to an integer for comparison
+    const slotTime = parseInt(slot);
+
+    // Filter slots only for today, allow all slots for other dates
+    if (selectedDate === todayDate) {
+      if (slotTime >= currentTime) {
+        slots.push(slot);
+      }
+    } else {
+      slots.push(slot);
+    }
+
     openMinute += 30;
 
     if (openMinute >= 60) {
@@ -28,7 +50,6 @@ export const generateTimeSlots = (open: string, close: string): string[] => {
       openHour += 1;
     }
   }
-
   return slots;
 };
 
@@ -44,13 +65,13 @@ export const filterAvailableSlots = (
       // Check if this facility is booked during the current slot
       const isFacilityBooked = bookings.some((booking) => {
         const bookingStart = booking.startTime;
-        const bookingEnd = addMinutes(bookingStart, booking.duration);
+        const bookingEnd = booking.endTime;
 
         // Check if the slot overlaps with the booking for this facility
         return (
           booking.facility.equals(facilityId) &&
-          slot >= bookingStart &&
-          slot < bookingEnd
+          parseInt(slot) >= parseInt(bookingStart) &&
+          parseInt(slot) < parseInt(bookingEnd)
         );
       });
 
@@ -63,8 +84,10 @@ export const filterAvailableSlots = (
 };
 
 // Function to add minutes to a time string (hh:mm)
-const addMinutes = (time: string, minutes: number): string => {
-  let [hour, minute] = time.split(':').map(Number);
+export const addMinutes = (time: string, minutes: number): string => {
+  let hour = parseInt(time.slice(0, 2));
+  let minute = parseInt(time.slice(2));
+
   minute += minutes;
 
   if (minute >= 60) {
@@ -72,5 +95,13 @@ const addMinutes = (time: string, minutes: number): string => {
     minute %= 60;
   }
 
-  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+  return `${String(hour).padStart(2, '0')}${String(minute).padStart(2, '0')}`;
 };
+
+//Important: Do not delete this. Delete end of the project.
+// // Check if the slot overlaps with the booking for this facility
+// return (
+//   booking.facility.equals(facilityId) &&
+//   ((parseInt(slot) >= parseInt(bookingStart) && parseInt(slot) < parseInt(bookingEnd)) ||
+//     (parseInt(addMinutes(slot, 30)) > parseInt(bookingStart) && parseInt(slot) < parseInt(bookingStart)))
+// );

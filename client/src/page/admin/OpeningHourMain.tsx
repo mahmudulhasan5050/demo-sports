@@ -12,8 +12,8 @@ const OpeningHourMain = () => {
   };
 
   return (
-    <div className='relative min-h-screen bg-gray-100'>
-      <div className='flex justify-end p-4'>
+    <div className="flex flex-col gap-4">
+      <div className="flex justify-end w-full">
         <button
           className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
           onClick={toggleHandle}
@@ -21,9 +21,8 @@ const OpeningHourMain = () => {
           Create opening hour
         </button>
       </div>
-
-      <div className='flex justify-center items-start'>
-        <div className='w-full max-w-5xl bg-white p-8 rounded-lg shadow-md'>
+      <div className="flex flex-row w-full">
+        
           {!refresh ? (
             <OpeningHourDisplay
             setOpeningHourtId={setOpeningHourtId}
@@ -38,7 +37,6 @@ const OpeningHourMain = () => {
             />
           )}
         </div>
-      </div>
     </div>
   );
 };

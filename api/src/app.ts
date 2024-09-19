@@ -49,13 +49,14 @@ app.use('/api/v1/facility', facilityRouter)
 app.use('/api/v1/openinghour', openingHourRouter)
 //app.use('/api/v1/exceptionday', exceptionDayRouter)    //to do. later
 app.use('/api/v1/booking', bookingRouter)
-//auth
-app.use('/api/v1/auth', authRouter)
 
 //when client is checking schedules for booking (no auth)
 app.use('/api/v1/booking-client', bookingClientRouter)
 //user auth needed
 app.use('/api/v1/booking-client-final', bookingClientFinalRouter)
+
+//auth
+app.use('/api/v1/auth', authRouter)
 
 //handle error
 app.use((req: Request, res: Response, next: NextFunction) => {

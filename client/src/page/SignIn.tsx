@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom';
 
 import { SignInType } from '../types/User';
 import { axiosSignIn } from '../axios';
-import {saveTokenToLocalStore} from '../utils/localStorageFunc'
+import { saveToken } from '../utils/cookiesFunc';
 import { useUser } from '../context/UserContext';
 
 const SignIn = () => {
   const [formData, setFormData] = useState<SignInType>({
     email: '',
-    password: ''
+    password: '',
   });
 
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  const { user, setUser, bookingDetailsCTX } = useUser();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -23,15 +23,26 @@ const SignIn = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const res = await axiosSignIn(formData);
-      if(res.data){
-        saveTokenToLocalStore(res.data)
-        setUser({name: res.data.name, email: res.data.email})
-        navigate('/');
+      if (res.data) {
+        saveToken(res.data);
+        setUser({
+          name: res.data.name,
+          email: res.data.email,
+          role: res.data.role,
+        });
+        // When user is signin during booking process or user login other situation
+        if (bookingDetailsCTX) {
+          console.log('signIn: user when bookingCTX is present ', user);
+          navigate('/booking-summary');
+        } else {
+          console.log('signIn: user when no bookingCTX ', user);
+
+          navigate('/');
+        }
       }
     } catch (err) {
       // Handle error
@@ -41,7 +52,10 @@ const SignIn = () => {
 
   return (
     <div className='flex items-center justify-center min-h-screen'>
-      <form onSubmit={handleSubmit} className='w-full max-w-md p-8 space-y-4 bg-white shadow-lg rounded-lg'>
+      <form
+        onSubmit={handleSubmit}
+        className='w-full max-w-md p-8 space-y-4 bg-white shadow-lg rounded-lg'
+      >
         <h2 className='text-2xl font-bold'>Sign In</h2>
 
         {error && <p className='text-red-500'>{error}</p>}
@@ -86,7 +100,10 @@ const SignIn = () => {
 
         <p className='text-center'>
           Forgot your password?{' '}
-          <a href='/forgot-password' className='text-sm text-blue-500 hover:underline'>
+          <a
+            href='/forgot-password'
+            className='text-sm text-blue-500 hover:underline'
+          >
             Reset Password
           </a>
         </p>

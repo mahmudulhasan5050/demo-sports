@@ -1,23 +1,27 @@
 // UserContext.tsx
 import React, { createContext, useState, useContext } from 'react';
-
-interface User {
-  name: string;
-  email: string;
-}
+import { UserCTXType, BookingObjCTXType } from '../types/bookingNUser';
 
 interface UserContextType {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: UserCTXType | null;
+  setUser: (user: UserCTXType | null) => void;
+  bookingDetailsCTX: BookingObjCTXType | null;
+  setBookingDetailsCTX: (bookingDetailsCTX: BookingObjCTXType | null) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [user, setUser] = useState<UserCTXType | null>(null);
+  const [bookingDetailsCTX, setBookingDetailsCTX] =
+    useState<BookingObjCTXType | null>(null);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider
+      value={{ user, setUser, bookingDetailsCTX, setBookingDetailsCTX }}
+    >
       {children}
     </UserContext.Provider>
   );

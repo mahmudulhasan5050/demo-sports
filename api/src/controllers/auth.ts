@@ -1,18 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import nodemailer from 'nodemailer';
-import crypto from 'crypto';
 
-import User, { IUser } from '../models/User';
+import User from '../models/User';
 import authServices from '../services/auth';
 import {
   AlreadyExistError,
-  BadRequestError,
   DoesNotExist,
 } from '../apiErrors/apiErrors';
-import { hashPassword, 
+import {
+  hashPassword,
   generateEmailConfirmationToken,
-  comparePassword, 
-  generateToken } from '../utils/crypto';
+  comparePassword,
+} from '../utils/crypto';
 
 //dami
 const clientURL = process.env.CLIENTURL;
@@ -36,12 +35,11 @@ export const signUp = async (
     const emailConfirmationToken = generateEmailConfirmationToken();
 
     const newUser = new User({
-        name: name,
-        email: email,
-        password: hashedPassword,
-        emailConfirmationToken: emailConfirmationToken,
-      });
-
+      name: name,
+      email: email,
+      password: hashedPassword,
+      emailConfirmationToken: emailConfirmationToken,
+    });
 
     const createSuccess = await authServices.signUp(newUser);
 
@@ -96,33 +94,32 @@ export const confirmEmail = async (
 };
 
 //login -----------------------
-export const signIn = async(
-    req: Request,
-    res: Response,
-    next: NextFunction
-) =>{
-    const {email, password} = req.body
-console.log("email ",email)
-    try {
-        const user = await User.findOne({email})
+export const signIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email, password } = req.body;
+ 
+  try {
+    const user = await User.findOne({ email });
 
-        //check user is exist or not
-        if(!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-          }
-          //user confirmed email or not
-          if (!user.isValid) {
-            return res.status(400).json({ message: 'Please confirm your email first' });
-          }
-          // compare password
-          const isMatch = await comparePassword(password, user.password)
-          if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-          }
-const token = await authServices.signIn(user)
-res.status(200).json(token)
-    } catch (error) {
-        
+    //check user is exist or not
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
-
-}
+    //user confirmed email or not
+    if (!user.isValid) {
+      return res
+        .status(400)
+        .json({ message: 'Please confirm your email first' });
+    }
+    // compare password
+    const isMatch = await comparePassword(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+    const token = await authServices.signIn(user);
+    res.status(200).json(token);
+  } catch (error) {}
+};

@@ -4,6 +4,7 @@ export interface IFacility extends Document {
   type: string;
   courtNumber: number;
   pricePerHour: number;
+  isActive: boolean;
 }
 
 const facilitySchema = new mongoose.Schema({

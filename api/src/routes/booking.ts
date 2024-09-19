@@ -1,11 +1,12 @@
 import express from 'express';
 
-import Booking from '../models/Booking';
 import {
   allBooking,
-  createBooking,
+  createAdminBooking,
   updateBooking,
-  deleteBooking
+  deleteBooking,
+  getBookingById,
+  getBookingByDate
 } from '../controllers/booking';
 
 const router = express.Router();
@@ -13,8 +14,14 @@ const router = express.Router();
 //get all
 router.get('/', allBooking);
 
+//get by id
+router.get('/:bookingId', getBookingById)
+
+//get booking by date
+router.get('/booking-by-date/:date', getBookingByDate)
+
 //create Booking
-router.post('/:facilityId', createBooking);
+router.post('/', createAdminBooking);
 
 //update one Booking
 router.post('/:bookingId', updateBooking);

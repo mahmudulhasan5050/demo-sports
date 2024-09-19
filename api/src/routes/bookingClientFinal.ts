@@ -1,15 +1,15 @@
 import express from 'express';
 
-import Booking from '../models/Booking';
 import {
   createBooking,
   deleteBooking
 } from '../controllers/bookingClientFinal';
+import userAuthMiddleware from '../middleware/userAuthMiddleware';
 
 const router = express.Router();
 
 //create Booking
-router.post('/:facilityId', createBooking);
+router.post('/:facilityId', userAuthMiddleware, createBooking);
 
 
 //Cancel Booking

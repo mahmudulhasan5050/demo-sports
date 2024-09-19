@@ -1,20 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
-import bookingClientServices from '../services/bookingClient';
-
-import Booking from '../models/Booking';
-import {
-  AlreadyExistError,
-  BadRequestError,
-  ForbiddenError,
-  NotFoundError,
-} from '../apiErrors/apiErrors';
-import Facility from '../models/Facility';
 import mongoose from 'mongoose';
+
+import bookingClientServices from '../services/bookingClient';
+import Booking, { IBooking } from '../models/Booking';
+import { BadRequestError, NotFoundError } from '../apiErrors/apiErrors';
+import Facility, { IFacility } from '../models/Facility';
 import OpeningHour from '../models/OpeningHour';
 import {
+  addMinutes,
   filterAvailableSlots,
   generateTimeSlots,
 } from '../utils/timeSlotHelper';
+import User from '../models/User';
+import { calculateTimeDifference } from '../utils/timeDifference';
 
 // get available time
 export const getAvailableTime = async (
@@ -23,8 +21,8 @@ export const getAvailableTime = async (
   next: NextFunction
 ) => {
   const { selectedDate, facilityName } = req.body;
+
   try {
-    console.log('selectedDate ', selectedDate, ':::', facilityName);
     if (!selectedDate || !facilityName) {
       return res
         .status(400)
@@ -36,7 +34,7 @@ export const getAvailableTime = async (
     const findDayStringFromDate = convertStringToDate
       .toLocaleString('en-US', { weekday: 'long' })
       .toLowerCase();
-    //console.log("findDayStringFromDate ",findDayStringFromDate)
+
     // Find the facility by name
     const facility = await Facility.find({ type: facilityName });
     if (!facility) {
@@ -56,17 +54,24 @@ export const getAvailableTime = async (
         .json({ error: 'Opening hours not found for the selected day' });
     }
 
-    const timeSlots = generateTimeSlots(openingHour.open, openingHour.close);
-    //console.log('availableSlots ', availableSlots);
+    const timeSlots = generateTimeSlots(
+      openingHour.open,
+      openingHour.close,
+      selectedDate
+    );
 
     const bookingsSuccess = await bookingClientServices.getAvailableTime(
       facilityIds,
       selectedDate
     );
-    console.log('bookingsSuccess', bookingsSuccess);
+
     // Filter out booked slots
-    const filteredSlots = filterAvailableSlots(timeSlots, bookingsSuccess, facilityIds);
-    console.log('filteredSlots ', filteredSlots);
+    const filteredSlots = filterAvailableSlots(
+      timeSlots,
+      bookingsSuccess,
+      facilityIds
+    );
+
     res.status(200).json({ availableTime: filteredSlots });
   } catch (error) {
     next(new BadRequestError('Invalid Request', error));
@@ -82,33 +87,157 @@ export const getAvailableCourt = async (
   const { facilityName, selectedDate, selectedTime } = req.body;
   try {
     // Find the facility by name
-    const facilities = await Facility.find({ type: facilityName }).exec();
+    const facilities: IFacility[] = await Facility.find({
+      type: facilityName,
+    }).exec();
     if (!facilities || facilities.length === 0) {
       return res.status(404).json({ error: 'Facility not found' });
     }
-    console.log('facilities ', facilities);
+
     const facilityIds = facilities.map((facility) => facility._id);
-    console.log('facilityIds ', facilityIds);
-    // Find bookings for the selected date and time
-    const bookedFacilities = await Booking.find({
+    // Find bookings for the selected date
+    const bookings = await Booking.find({
       facility: { $in: facilityIds },
       date: selectedDate,
-      startTime: selectedTime,
-    }).select('facility');
+    }).select('facility startTime endTime duration');
 
-    const bookedFacilityIds = bookedFacilities.map(
-      booking => booking.facility
-    );
-   console.log("bookedFacilityIds ",bookedFacilityIds)
-    // Filter out booked facilities
-    const availableCourts = facilities.filter(
-      facility => !bookedFacilityIds.includes(facility._id as mongoose.Types.ObjectId)
-    );
+    // Filter out booked facilities considering the selected time
+    const availableCourts = facilities.filter((facility) => {
+      return bookings.every((booking) => {
+        // The court is available if the selected start time is greater than or equal to the booking end time
+        return !(
+          booking.facility.equals(facility._id as mongoose.Types.ObjectId) &&
+          selectedTime < booking.endTime &&
+          selectedTime >= booking.startTime
+        );
+      });
+    });
 
-    console.log("---------------------------- ")
-    console.log("availableCourts ",availableCourts)
     res.status(200).json({ availableCourts });
   } catch (error) {
     next(new BadRequestError('Invalid Request', error));
+  }
+};
+
+export const getAvailableDuration = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  //no need: facilityName here
+  const { facilityName, selectedDate, selectedTime, selectedFacilityId } =
+    req.body;
+  console.log(
+    facilityName +
+      '::' +
+      selectedDate +
+      '::' +
+      selectedTime +
+      '::' +
+      selectedFacilityId
+  );
+  try {
+    const validDurations = [30, 60, 90];
+    // Find the facility by name
+    // const facilities: IFacility[] = await Facility.find({
+    //   type: facilityName,
+    // }).exec();
+    // if (!facilities || facilities.length === 0) {
+    //   return res.status(404).json({ error: 'Facility not found' });
+    // }
+
+    // const facilityIds = facilities.map((facility) => facility._id);
+    // Find bookings for the selected date
+    const bookings = await Booking.find({
+      facility: selectedFacilityId,
+      date: selectedDate,
+    }).select('facility startTime endTime duration');
+
+    //Find possible durations for booking [30,60,90]
+    bookings.filter((booking) => {
+      if (selectedTime < booking.endTime) {
+        if (addMinutes(selectedTime, 30) > booking.startTime) {
+          const index = validDurations.indexOf(30);
+          if (index > -1) validDurations.splice(index, 1);
+        }
+        if (addMinutes(selectedTime, 60) > booking.startTime) {
+          const index = validDurations.indexOf(60);
+          if (index > -1) validDurations.splice(index, 1);
+        }
+        if (addMinutes(selectedTime, 90) > booking.startTime) {
+          const index = validDurations.indexOf(90);
+          if (index > -1) validDurations.splice(index, 1);
+        }
+      }
+    });
+    console.log('valid Duration', validDurations);
+    res.status(200).json({ validDurations });
+  } catch (error) {
+    next(new BadRequestError('Invalid Request', error));
+  }
+};
+
+// get active bookings for user
+export const getUserBooking = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email } = req.params;
+  try {
+    const isExist = await User.findOne({ email });
+    if (!isExist) throw new NotFoundError();
+    const bookingsByUserSuccess = await bookingClientServices.getUserBooking(
+      isExist._id as mongoose.Types.ObjectId
+    );
+
+    // Get today's date and reset time to 00:00:00
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Filter bookings for today or in the future
+    const futureBookings = bookingsByUserSuccess.filter((booking: IBooking) => {
+      const bookingDate = new Date(booking.date);
+      return bookingDate >= today;
+    });
+
+    res.status(200).json(futureBookings);
+  } catch (error) {
+    next(new BadRequestError());
+  }
+};
+
+// delete booking by user
+export const deleteBookingByUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    //get id from params
+    const bookingId = req.params.bookingId;
+    // Fetch the booking from the database
+    const booking = await Booking.findById(bookingId);
+
+    // If booking does not exist, throw an error
+    if (!booking) throw new NotFoundError('Booking not found');
+    const timeDifferenceInHours = calculateTimeDifference(
+      booking.date,
+      booking.startTime
+    );
+
+    // Check if the time difference is more than 12 hours
+    if (timeDifferenceInHours < 12) {
+      next(
+        new BadRequestError(
+          'Cannot cancel the booking as it starts in less than 12 hours'
+        )
+      );
+    } else {
+      await bookingClientServices.deleteBookingByUser(bookingId);
+      res.status(204).end();
+    }
+  } catch (error) {
+    next(new BadRequestError('Can not delete.....', error));
   }
 };

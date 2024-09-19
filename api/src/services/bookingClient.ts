@@ -13,6 +13,28 @@ const getAvailableTime = async(facilityIds:mongoose.Types.ObjectId[],selectedDat
   return bookings
 }
 
+// get bookings by user
+const getUserBooking = async(userId: mongoose.Types.ObjectId) =>{
+  try {
+    // Assuming you have a Booking model that relates to users
+    const bookings = await Booking.find({ user: userId }).populate('facility', 'type courtNumber');
+    return bookings;
+  } catch (error) {
+    throw new Error('Error fetching bookings'); // Handle errors appropriately
+  }
+}
+
+//delete
+const deleteBookingByUser = async (bookingId: string) => {
+  
+  const deleteFromDatabase = await Booking.findByIdAndDelete(bookingId);
+
+  if (!deleteFromDatabase) throw new NotFoundError('Facility is not found');
+  return deleteFromDatabase;
+};
+
 export default {
-    getAvailableTime
+    getAvailableTime,
+    getUserBooking,
+    deleteBookingByUser
 };

@@ -44,31 +44,29 @@ const FacilityUnitDisplay = ({ refresh, setRefresh }: setRefreshType) => {
   };
 
   return (
-    <div>
-      <h2 className='text-2xl font-bold text-gray-700 mb-6 text-center'>
-        Facility Units
-      </h2>
+    <div className="bg-white p-4 rounded-sm border border-gray-200 flex flex-col flex-1">
+      <strong className="text-gray-700 font-bold text-center">Facility Unit</strong>
 
-      <div className='w-full max-w-5xl bg-white p-8 rounded-lg shadow-md'>
+      <div className='border-x border-gray-200 rounded-sm mt-3'>
         {facilityUnits.length === 0 ? (
           <p className='text-center text-gray-600'>
             No Facility Units Available
           </p>
         ) : (
-          <table className='min-w-full bg-white'>
+          <table className='w-full text-gray-700'>
             <thead>
               <tr>
-                <th className='py-2 px-4 border-b'>Name</th>
-                <th className='py-2 px-4 border-b'>Actions</th>
+                <th>Name</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {facilityUnits.map((unit) => (
                 <tr key={unit._id}>
-                  <td className='py-2 px-4 border-b'>
+                  <td className='text-center'>
                     {firstLetterUpperCase(unit.name)}
                   </td>
-                  <td className='py-2 px-4 border-b'>
+                  <td className='text-center'>
                     <button
                       onClick={() => unit._id && handleDelete(unit._id)}
                       className='bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-4 rounded focus:outline-none focus:shadow-outline'

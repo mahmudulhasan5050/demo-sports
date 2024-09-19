@@ -12,7 +12,7 @@ const router = express.Router();
 router.post('/signup', signUp);
 router.get('/confirm/:token', confirmEmail)
 router.post('/signin', signIn);
-//router.post('/signin', signIn)
+
 
   
 

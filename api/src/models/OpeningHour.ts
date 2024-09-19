@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 export interface IOpeningHour extends Document {
   day: string; // here I want only name of the day to save
@@ -6,7 +6,7 @@ export interface IOpeningHour extends Document {
   close: string;
 }
 
-const openingHourSchema: Schema = new mongoose.Schema({
+const openingHourSchema = new mongoose.Schema({
   day: { type: String, required: true, unique: true },
   open: { type: String, required: true },
   close: { type: String, required: true },

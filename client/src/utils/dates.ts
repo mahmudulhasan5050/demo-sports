@@ -1,6 +1,6 @@
 export const todayToString = () =>{
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    return today.toLocaleDateString('en-CA');
 }
 
 // function counts next 15 days from today

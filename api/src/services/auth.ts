@@ -25,7 +25,8 @@ const signIn = async (user: IUser) => {
 
   const email = user.email;
   const name = user.name;
-  return { token, email, name };
+  const role= user.role;
+  return { token, email, name, role };
 };
 
 export default {

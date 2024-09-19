@@ -1,200 +1,215 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
-import { todayToString, count15DaysFromToday } from '../utils/dates';
-import { axiosAvailableTime, axiosAvailableCourt, axiosBookingCreate } from '../axios';
-import { Facility } from '../types/Facility';
-import Loading from '../components/Loading';
-import ErrorComp from '../components/ErrorComp';
+import { todayToString, count15DaysFromToday } from '../utils/dates'
+import { axiosAvailableTime, axiosBookingCreate } from '../axios'
+import { Facility } from '../types/Facility'
+import { AxiosRequestForFetchDataType } from '../types/AxiosRequestForFetchData'
+import { useUser } from '../context/UserContext'
 
-export type FacilityNDateObjType = {
-  selectedDate: string;
-  facilityName: string;
-  selectedTime?: string;
-};
-export type BookingObjType = {
-  date: string;
-  time: string;
-  duration: number;
-};
+import Loading from '../components/client/Loading'
+import ErrorComp from '../components/client/ErrorComp'
+import TimeSlot from '../components/client/bookingClient/TimeSlot'
+import AvailableFacility from '../components/client/bookingClient/AvailableFacility'
+import Duration from '../components/client/bookingClient/Duration'
+import { BookingObjCTXType } from '../types/bookingNUser'
 
 const BookingClient = () => {
-  const [date, setDate] = useState<string>(todayToString);
-  const [availableTime, setAvailableTime] = useState<string[]>([]);
-  const [availableCourts, setAvailableCourts] = useState<Facility[]>([]);
+    const { user, bookingDetailsCTX, setBookingDetailsCTX } = useUser()
 
-  const [facilityId, setFacilityId] = useState<string>('');
-  const [time, setTime] = useState<string>('');
-  const [duration, setDuration] = useState<number>(0);
+    const { facilityName } = useParams<{ facilityName: string }>()
+    const navigate = useNavigate()
 
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state
+    // These hooks are get available data from database
+    const [date, setDate] = useState<string>(todayToString)
+    const [availableTime, setAvailableTime] = useState<string[]>([])
+    const [availableCourts, setAvailableCourts] = useState<Facility[]>([])
+    const [availableGameDurations, setAvailableGameDurations] = useState<number[]>([])
 
-  const { facilityName } = useParams<{ facilityName: string }>();
+    //These hooks are for final selection from user
+    const [time, setTime] = useState<string>('')
+    const [facilityId, setFacilityId] = useState<string>('')
+    const [duration, setDuration] = useState<number>(0)
+    const [costPerHour, setCostPerHour] = useState<number>(0)
 
-  useEffect(() => {
-    const facilityNDateObj = {
-      selectedDate: date,
-      facilityName: facilityName!,
-    } as FacilityNDateObjType;
+    const [loading, setLoading] = useState<boolean>(false)
+    const [loadingFacility, setLoadingFacility] = useState<boolean>(false)
+    const [loadingDuration, setLoadingDuration] = useState<boolean>(false)
+    // Loading state
+    const [error, setError] = useState<string | null>(null) // Error state
 
-    try {
-      const getAvailableTime = async () => {
+    useEffect(() => {
+        const facilityNDateObj = {
+            selectedDate: date,
+            facilityName: facilityName!
+        } as AxiosRequestForFetchDataType
+
         try {
-          setLoading(true);
-          //axios parameter: selectedDate:string, facilityName:string
-          const res = await axiosAvailableTime(facilityNDateObj);
-          setAvailableTime(res.data.availableTime);
-          setAvailableCourts([]);
-          setTime('');
-          setFacilityId('');
-          setDuration(0);
-        } catch (error) {
-          setError('Failed to fetch available times');
-        } finally {
-          setLoading(false);
+            const getAvailableTime = async () => {
+                try {
+                    setLoading(true)
+                    setAvailableTime([])
+                    //axios parameter: selectedDate:string, facilityName:string
+                    const res = await axiosAvailableTime(facilityNDateObj)
+                    setAvailableTime(res.data.availableTime)
+                    clearState()
+                } catch (error) {
+                    setError('Failed to fetch available times')
+                } finally {
+                    setLoading(false)
+                }
+            }
+            getAvailableTime()
+        } catch (error) {}
+    }, [date, facilityName])
+
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setDate(e.target.value)
+        clearState()
+    }
+
+    const handleBooking = () => {
+        if (time !== '' && duration !== 0 && facilityId !== '') {
+            const totalCost = (costPerHour * duration) / 60
+            const bookingObjCTX = {
+                date,
+                time,
+                duration,
+                facilityId,
+                facilityName: facilityName!,
+                paymentAmount: totalCost,
+                isPaid: false
+            } as BookingObjCTXType
+
+            setBookingDetailsCTX(bookingObjCTX)
+            localStorage.setItem('booking', JSON.stringify(bookingObjCTX))
+            // When is logged In
+            if (user && user.email) {
+                navigate('/booking-summary')
+            } else {
+                //When user is not loggedIn
+                navigate('/signin')
+            }
+        } else {
+            toast('Please check your selection to book.')
         }
-      };
-      getAvailableTime();
-    } catch (error) {}
-  }, [date, facilityName]);
-
- //select time and get available facility
-  const handleTimeSlotClick = async (selectedTime: string) => {
-    try {
-      setLoading(true);
-      const facilityNDateObj = {
-        selectedDate: date,
-        facilityName: facilityName!,
-        selectedTime,
-      } as FacilityNDateObjType;
-
-      const res = await axiosAvailableCourt(facilityNDateObj);
-      setTime(selectedTime);
-      setAvailableCourts(res.data.availableCourts);
-    } catch (error) {
-      setError('Failed to fetch available courts');
-    } finally {
-      setLoading(false);
     }
-  };
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDate(e.target.value);
-  };
-  // handle court to get facilityId. In database, it is called 'facility'
-  const courtHandle = (courtId: string) => {
-    setFacilityId(courtId);
-  };
-  //handle duration
-  const durationHandle = (givenDuration: number) => {
-    setDuration(givenDuration);
-  };
-
-  const handleBooking = async() => {
-    if (time !== '' && duration !== 0 && facilityId !== '') {
-      try {
-        const bookingObj = {
-          date,
-          time,
-          duration,
-        } as BookingObjType;
-        const res = await axiosBookingCreate(facilityId, bookingObj)
-        console.log(res.data)
-      } catch (error) {
-        setError('Failed to book your time');
-      }
-    } else {
-      toast('Please check your selection to book.');
+    const clearState = () => {
+        setAvailableCourts([])
+        setAvailableGameDurations([])
+        setTime('')
+        setFacilityId('')
+        setDuration(0)
     }
-  };
-  console.log('date ', date);
-  console.log('time ', time);
-  console.log('facility ', facilityId);
-  console.log('duration ', duration);
 
-  return (
-    <div className='min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4'>
-      <form className='bg-white w-full md:w-1/2 p-8 rounded-lg shadow-md mb-8'>
-        <div className='mb-4'>
-          <label className='block text-gray-700 text-sm font-bold mb-2'>
-            Select Date
-          </label>
-          <input
-            type='date'
-            value={date}
-            onChange={handleDateChange}
-            min={todayToString()} // Disable past dates
-            max={count15DaysFromToday()} // Disable dates after 15 days
-            className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
-          />
-        </div>
-      </form>
-      {loading && <Loading />} {/* Show loading spinner if loading */}
-      {error && <ErrorComp message={error} />}{' '}
-      {/* Show error message if error */}
-      {!loading && !error && availableTime.length === 0 && (
-        <p className='text-gray-500'>No available time slots.</p>
-      )}
-      <div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4'>
-        {availableTime.map((timeSlot, index) => (
-          <button
-            key={index}
-            className='bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700'
-            onClick={() => handleTimeSlotClick(timeSlot)} // Future functionality
-          >
-            {timeSlot}
-          </button>
-        ))}
-      </div>
-      {availableCourts.length > 0 && (
-        <div className='mt-8'>
-          <h2 className='text-xl font-bold mb-4'>Available Courts</h2>
-          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
-            {availableCourts.map((court, index) => (
-              <button
-                key={index}
-                onClick={() => court._id && courtHandle(court._id)}
-                className='bg-green-500 text-white font-bold py-2 px-4 rounded text-center'
-              >
-                <h3>
-                  {court.type}-{court.courtNumber}
-                </h3>
-                <p>{court.pricePerHour} euros</p>
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={() => durationHandle(30)}
-            className='bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700'
-          >
-            30 minutes
-          </button>
-          <button
-            onClick={() => durationHandle(60)}
-            className='bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700'
-          >
-            60 minutes
-          </button>
-          <button
-            onClick={() => durationHandle(90)}
-            className='bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700'
-          >
-            90 minutes
-          </button>
-        </div>
-      )}
-      <div className='mb-4'>
-        <button
-          className='bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700'
-          onClick={handleBooking}
-        >
-          Book Now
-        </button>
-      </div>
-    </div>
-  );
-};
+    console.log('time ', time)
+    console.log('facilityId ', facilityId)
+    console.log('Duration', duration)
+    console.log('-------------------------')
 
-export default BookingClient;
+    return (
+        <div className="min-h-screen flex flex-col items-center px-4 mt-10">
+            <div className="w-full md:w-1/2 rounded-lg mb-16">
+                <label className="block text-gray-700 text-md font-bold mb-2">Select Date</label>
+                <input
+                    type="date"
+                    value={date}
+                    onChange={handleDateChange}
+                    min={todayToString()} // Disable past dates
+                    max={count15DaysFromToday()} // Disable dates after 15 days
+                    className="shadow-md appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+            </div>
+            {error && <ErrorComp message={error} />} {/* Show error message if error */}
+            {!loading && !error && availableTime.length === 0 && (
+                <p className="text-gray-500">No available time slots.</p>
+            )}
+            <div className="w-full flex flex-col md:w-1/2 mb-16">
+                <span className="block text-gray-700 text-md font-bold mb-2">Select Time</span>
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <div className="grid grid-cols-4 md:grid-cols-6 gap-4">
+                        {facilityName &&
+                            availableTime.map((timeSlot, index) => (
+                                <TimeSlot
+                                    key={index}
+                                    timeSlot={timeSlot}
+                                    date={date}
+                                    time={time}
+                                    facilityName={facilityName}
+                                    setFacilityId={setFacilityId}
+                                    setDuration={setDuration}
+                                    setTime={setTime}
+                                    setAvailableCourts={setAvailableCourts}
+                                    setLoadingFacility={setLoadingFacility}
+                                    setError={setError}
+                                />
+                            ))}
+                    </div>
+                )}
+            </div>
+            {availableCourts.length > 0 && (
+                <div className="w-full flex flex-col md:w-1/2 mb-16">
+                    <span className="block text-gray-700 text-md font-bold mb-2">Select Court</span>
+                    {loadingFacility ? (
+                        <Loading />
+                    ) : (
+                        <div className="flex flex-col w-full gap-4">
+                            {facilityName &&
+                                availableCourts.map((court, index) => (
+                                    <AvailableFacility
+                                        key={index}
+                                        facility={court}
+                                        date={date}
+                                        time={time}
+                                        facilityName={facilityName}
+                                        facilityId={facilityId}
+                                        setCostPerHour={setCostPerHour}
+                                        setFacilityId={setFacilityId}
+                                        setAvailableGameDurations={setAvailableGameDurations}
+                                        setLoadingDuration={setLoadingDuration}
+                                        setError={setError}
+                                    />
+                                ))}
+                        </div>
+                    )}
+                </div>
+            )}
+            {availableGameDurations.length > 0 && (
+                <div className="w-full flex flex-col md:w-1/2 mb-16">
+                    <span className="block text-gray-700 text-md font-bold mb-2">How long you want to play</span>
+                    {loadingDuration ? (
+                        <Loading />
+                    ) : (
+                        <div className="flex justify-between w-full gap-4">
+                            {availableGameDurations.map((availableGameDuration) => (
+                                <Duration
+                                    key={availableGameDuration}
+                                    duration={duration}
+                                    availableGameDuration={availableGameDuration}
+                                    setDuration={setDuration}
+                                    setLoadingDuration={setLoadingDuration}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+            {time !== '' && facilityId !== '' && duration !== 0 && (
+                <div className="w-full flex flex-col md:w-1/2 mb-16">
+                    <button
+                        className="bg-gradient-to-tl font-bold py-2 px-4 rounded shadow-md from-green-200 to-green-500 text-gray-800 hover:from-green-500 hover:to-green-200"
+                        onClick={handleBooking}
+                    >
+                        Confirm (<span className="text-red-500"> {(costPerHour * duration) / 60} </span> euros)
+                    </button>
+                </div>
+            )}
+        </div>
+    )
+}
+
+export default BookingClient

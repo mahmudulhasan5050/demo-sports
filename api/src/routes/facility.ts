@@ -1,8 +1,7 @@
 import express from 'express';
 
-import Facility from '../models/Facility';
 import { allFacility,createFacility, updateFacility,deleteFacility,getFacilityById } from '../controllers/facility';
-
+import userAuthMiddleware from '../middleware/userAuthMiddleware';
 
 const router = express.Router()
 

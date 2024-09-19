@@ -4,10 +4,13 @@ import bookingServices from '../services/bookingClientFinal';
 import Booking from '../models/Booking';
 import {
   AlreadyExistError,
-  BadRequestError
+  BadRequestError,
+  NotFoundError
 } from '../apiErrors/apiErrors';
 import Facility from '../models/Facility';
+import {addMinutes} from '../utils/timeSlotHelper'
 import mongoose from 'mongoose';
+import User from '../models/User';
 
 
 //create booking
@@ -17,7 +20,7 @@ export const createBooking = async (
   next: NextFunction
 ) => {
   const facilityId = req.params.facilityId;
-  const { date, time, duration } = req.body;
+  const { email, date, time, duration, paymentAmount, isPaid } = req.body;
 
   //check facilityId is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(facilityId)) {
@@ -26,6 +29,8 @@ export const createBooking = async (
   try {
     //check facilityId exist'
     const facilityExist = await Facility.findById(facilityId);
+    const userExist = await User.findOne({email})
+    if(!userExist) throw new NotFoundError()
     console.log('facilityExist: ', facilityExist);
     // check existance
     const isExist = await Booking.findOne({
@@ -36,11 +41,18 @@ export const createBooking = async (
     if (isExist) throw new AlreadyExistError();
 
     //create new facility according to user input
+    const endTime = addMinutes(time,duration)
+    
+    console.log("endTime", endTime)
     const newBooking = new Booking({
+      user: userExist._id,
       facility: facilityId,
       date: date,
       startTime: time,
+      endTime: endTime,
       duration: duration,
+      paymentAmount,
+      isPaid
     });
 
     // call service function to save in database¨
