@@ -6,12 +6,17 @@ import { OpeningHour } from '../types/OpeningHour'
 import { User, SignInType } from '../types/User'
 import { AxiosRequestForFetchDataType } from '../types/AxiosRequestForFetchData'
 import { BookingCreateType } from '../types/Booking'
-import { BookingObjCTXType } from '../types/bookingNUser'
+import { CreateBookingObjType } from '../page/BookingClient'
+
 
 //auth
-export const axiosCreateUser = async (newUser: User) => await API.post('/auth/signup', newUser) //signup (create user)
+export const axiosSignUp= async (newUser: User) => await API.post('/auth/signup', newUser) //signup (create user)
 export const axiosEmailConfirm = async (token: string) => await API.get(`/auth/confirm/${token}`) //confirm email
 export const axiosSignIn = async (user: SignInType) => await API.post('/auth/signin', user) //signin
+export const axiosForgotPassword = async({email}:{email:string})=>
+   await API.post('/auth/forgot-password', {email})
+export const axiosResetPassword = async(token: string, {password}:{password: string})=> 
+    await API.post(`/auth/reset-password/${token}`, {password})
 
 //When user is trying to create a booking
 //find available time.Param: facility and date (object body)
@@ -23,10 +28,10 @@ export const axiosAvailableDuration = async (bodyObject: AxiosRequestForFetchDat
     await API.post('/booking-client/available-duration', bodyObject)
 
 // When user is submitting for final booking
-export const axiosBookingCreate = async (facililyId: string, bookingObj: BookingObjCTXType) =>
+export const axiosUserBookingCreate = async (facililyId: string, bookingObj: CreateBookingObjType) =>
     await customAxios.post(`/booking-client-final/${facililyId}`, bookingObj)
-export const axiosFetchBookingsByUser = async(userEmail:string)=>
-    await customAxios.get(`/booking-client/booking-for-user/${userEmail}`)
+export const axiosFetchBookingsByUser = async()=>
+    await customAxios.get(`/booking-client/booking-for-user`)
 export const axiosDeleteBookingByUser = async(bookingId:string)=>
     await customAxios.delete(`/booking-client/${bookingId}`)
 
@@ -67,5 +72,7 @@ export const axiosGetBookingByDate = async(date: string) =>
 
 
 // users
-export const axiosFetchUsers = async () => API.get('/user')
-export const axiosDeleteUser = async (userId: string) => API.delete(`/user/${userId}`)
+export const axiosFetchUsers = async () => await API.get('/user')
+export const axiosDeleteUser = async (userId: string) => await API.delete(`/user/${userId}`)
+export const axiosUserById = async(userId: string)=> await API.get(`/user/${userId}`)
+export const axiosEditUser = async(userId:string, userData: User) => API.post(`/user/${userId}`, userData)

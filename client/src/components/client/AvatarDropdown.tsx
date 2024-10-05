@@ -3,11 +3,11 @@ import { ChevronDown, UserCircle, LogOut, Calendar } from 'lucide-react';
 import OwnScheduleModal from './modal/OwnScheduleModal';
 
 interface AvatarDropdownProps {
-  user: { name: string; email: string };
+  userCTX: { name: string; role:string };
   handleLogout: () => void;
 }
 
-const AvatarDropdown: React.FC<AvatarDropdownProps> = ({ user, handleLogout }) => {
+const AvatarDropdown = ({ userCTX, handleLogout }:AvatarDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null); // useRef is used to have drop-down menu outside click functionality
@@ -48,12 +48,12 @@ const AvatarDropdown: React.FC<AvatarDropdownProps> = ({ user, handleLogout }) =
     <div className='relative' ref={dropdownRef}>
       <button onClick={toggleDropdown} className='flex items-center space-x-2 '>
         <UserCircle className='h-8 w-8 text-gray-600' />
-        <ChevronDown className='h-4 w-4 text-gray-600' />
+        <ChevronDown className='h-4 w-4 text-gray-600 ' />
       </button>
       {isOpen && (
-        <div className='absolute right-0 mt-2 w-48 rounded-lg bg-white shadow-lg'>
+        <div className='absolute right-0 mt-2 w-48 rounded-lg bg-white z-10 shadow-lg'>
           <div className='py-2'>
-            <div className='px-4 py-2 text-gray-800'>{user.name}</div>
+            <div className='px-4 py-2 text-gray-800'>{userCTX.name}</div>
             <hr />
             <button
                onClick={handleOwnScheduleClick}

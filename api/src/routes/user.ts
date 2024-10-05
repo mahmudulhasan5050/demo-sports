@@ -1,24 +1,39 @@
 import express from 'express';
+import passport from 'passport';
 
-import User from '../models/User';
-import { allUsers,getUserById, createUser,updateUser,deleteUser } from '../controllers/user';
+import {
+  allUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+} from '../controllers/user';
+import adminAuthMiddleware from '../middleware/adminAuthMiddleware';
 
-
-const router = express.Router()
+const router = express.Router();
 
 //get all
-router.get('/', allUsers)
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  adminAuthMiddleware,
+  allUsers
+);
 //get by id
-router.get('/:userId', getUserById)
+router.get('/:userId', getUserById); // Check auth related fact
 
-//create 
+//create
 //this api is available in auth
 //------ router.post('/', createUser)
 
 //update
-router.post('/:userId', updateUser)
+router.post('/:userId', updateUser); // check if it is needed
 
-//delete 
-router.delete('/:userId', deleteUser)
+//delete
+router.delete(
+  '/:userId',
+  passport.authenticate('jwt', { session: false }),
+  adminAuthMiddleware,
+  deleteUser
+);
 
-export default router
+export default router;

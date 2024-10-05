@@ -1,19 +1,25 @@
 import express from 'express';
+import passport from 'passport';
 
 import {
   createBooking,
-  deleteBooking
+  deleteBooking,
 } from '../controllers/bookingClientFinal';
-import userAuthMiddleware from '../middleware/userAuthMiddleware';
 
 const router = express.Router();
 
 //create Booking
-router.post('/:facilityId', userAuthMiddleware, createBooking);
-
+router.post(
+  '/:facilityId',
+  passport.authenticate('jwt', { session: false }),
+  createBooking
+);
 
 //Cancel Booking
-router.delete('/:bookingId', deleteBooking);
-
+router.delete(
+  '/:bookingId',
+  passport.authenticate('jwt', { session: false }),
+  deleteBooking
+);
 
 export default router;

@@ -10,7 +10,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <BrowserRouter>
-    <App />
-    <Toaster position="top-right" />
+
+  <App />
+  <Toaster position="top-right" />
+
+
   </BrowserRouter>
 );

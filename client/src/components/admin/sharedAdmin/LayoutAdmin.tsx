@@ -7,9 +7,9 @@ import SideBar from './SideBar'
 import HeaderAdmin from './HeaderAdmin'
 
 const LayoutAdmin = () => {
-    const {user} = useUser()
+    const {userCTX} = useUser()
     const navigate = useNavigate()
-    console.log(user)
+    console.log(userCTX)
 
 
     return (

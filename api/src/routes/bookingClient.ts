@@ -1,12 +1,12 @@
 import express from 'express';
+import passport from 'passport';
 
-import Booking from '../models/Booking';
 import {
   getAvailableTime,
   getAvailableCourt,
- getAvailableDuration,
- getUserBooking,
- deleteBookingByUser
+  getAvailableDuration,
+  getUserBooking,
+  deleteBookingByUser,
 } from '../controllers/bookingClient';
 
 const router = express.Router();
@@ -15,15 +15,23 @@ const router = express.Router();
 router.post('/available-time', getAvailableTime);
 
 // get available court according to date, facility(court) and time
-router.post('/available-court', getAvailableCourt)
+router.post('/available-court', getAvailableCourt);
 
 //get available time duration for a facility(court)
-router.post('/available-duration', getAvailableDuration)
+router.post('/available-duration', getAvailableDuration);
 
 //get bookings for one user
-router.get('/booking-for-user/:email', getUserBooking)
+router.get(
+  '/booking-for-user',
+  passport.authenticate('jwt', { session: false }),
+  getUserBooking
+);
 
 // delete booking by user
-router.delete('/:bookingId', deleteBookingByUser);
+router.delete(
+  '/:bookingId',
+  passport.authenticate('jwt', { session: false }),
+  deleteBookingByUser
+); //confusion!! Check which delete is being used
 
 export default router;

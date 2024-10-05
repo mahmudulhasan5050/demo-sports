@@ -1,6 +1,6 @@
 import express from 'express';
+import passport from 'passport';
 
-import OpeningHour from '../../models/OpeningHour';
 import {
   allOpeningHours,
   getOpeningHourById,
@@ -8,21 +8,47 @@ import {
   updateOpeningHour,
   deleteOpeningHour,
 } from '../../controllers/openingHour/openingHour';
+import adminAuthMiddleware from '../../middleware/adminAuthMiddleware';
 
 const router = express.Router();
 
 //get all
-router.get('/', allOpeningHours);
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  adminAuthMiddleware,
+  allOpeningHours
+);
 //get by id
-router.get('/:openinghourId', getOpeningHourById);
+router.get(
+  '/:openinghourId',
+  passport.authenticate('jwt', { session: false }),
+  adminAuthMiddleware,
+  getOpeningHourById
+);
 
 //create facility
-router.post('/', createOpeningHour);
+router.post(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  adminAuthMiddleware,
+  createOpeningHour
+);
 
 //update one facility
-router.post('/:openingHourId', updateOpeningHour);
+router.post(
+  '/:openingHourId',
+  passport.authenticate('jwt', { session: false }),
+  adminAuthMiddleware,
+  updateOpeningHour
+);
 
 //delete facility
-router.delete('/:openingHourId', deleteOpeningHour);
+router.delete(
+  '/:openingHourId',
+  passport.authenticate('jwt', { session: false }),
+  adminAuthMiddleware,
+  deleteOpeningHour
+);
 
 export default router;

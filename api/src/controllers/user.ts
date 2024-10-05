@@ -39,30 +39,30 @@ export const getUserById = async(
   }
 }
 
-//create 
-export const createUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { name, email, password } = req.body;
+// //create 
+// export const createUser = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { name, email, password } = req.body;
 
-    // check existance
-    const isExist = await User.findOne({ email });
-    if (isExist) throw new AlreadyExistError();
+//     // check existance
+//     const isExist = await User.findOne({ email });
+//     if (isExist) throw new AlreadyExistError();
 
-    //create new new according to user input
-    const newUser = new User({
-name, email, password
-    });
-    // call service function to save in database
-    const createSuccess = await userServices.createUser(newUser);
-    res.status(200).json(createSuccess);
-  } catch (error) {
-    next(new BadRequestError('Can not create user', error));
-  }
-};
+//     //create new new according to user input
+//     const newUser = new User({
+// name, email, password
+//     });
+//     // call service function to save in database
+//     const createSuccess = await userServices.createUser(newUser);
+//     res.status(200).json(createSuccess);
+//   } catch (error) {
+//     next(new BadRequestError('Can not create user', error));
+//   }
+// };
 
 //update
 export const updateUser = async (

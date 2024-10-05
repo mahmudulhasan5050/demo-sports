@@ -1,31 +1,31 @@
 import { useEffect, useState } from 'react'
 import { useUser } from '../context/UserContext'
 import { useNavigate } from 'react-router-dom'
-import { axiosBookingCreate } from '../axios'
+import { axiosUserBookingCreate } from '../axios'
 import toast from 'react-hot-toast'
-import { BookingObjCTXType } from '../types/bookingNUser'
+import { CreateBookingObjType } from './BookingClient'
 
 const BookingSummary = () => {
     const bookingInfoStr = localStorage.getItem('booking')
-    const [bookingInfo, setBookingInfo] = useState<BookingObjCTXType | null>(bookingInfoStr ? JSON.parse(bookingInfoStr) : null)
-    const { user, bookingDetailsCTX, setBookingDetailsCTX } = useUser() // Added setBookingDetailsCTX to update context
+    const [bookingInfo, setBookingInfo] = useState<CreateBookingObjType | null>(bookingInfoStr ? JSON.parse(bookingInfoStr) : null)
+    const { userCTX } = useUser() // Added setBookingDetailsCTX to update context
     const navigate = useNavigate()
 
     if (!bookingInfo) {
         navigate('/')
     }
-    if (user?.role === 'member' && bookingInfo) {
-        bookingInfo.email = user.email
+    if (userCTX?.role === 'member' && bookingInfo) {
         bookingInfo.isPaid = true
         bookingInfo.paymentAmount = 0
     }
 
-    const confirmHandle = async () => {
+    const confirmBookingHandle = async () => {
         if (bookingInfo) {
             try {
-                const res = await axiosBookingCreate(bookingInfo.facilityId, bookingInfo)
+                const res = await axiosUserBookingCreate(bookingInfo.facilityId, bookingInfo)
                 if (res.data) {
                     toast.success('Booking successful')
+                    localStorage.clear()
                     navigate('/booking-success')
                 }
             } catch (error) {
@@ -37,10 +37,9 @@ const BookingSummary = () => {
     const paymentHandle = async () => {
         // Simulate payment process
         console.log('Payment process!!!!!')
-        if (bookingInfo && user) {
+        if (bookingInfo && userCTX) {
             try {
                 // Simulating payment success
-                bookingInfo.email = user.email
                 bookingInfo.isPaid = true
 
                 // Update context to trigger UI change
@@ -52,7 +51,8 @@ const BookingSummary = () => {
             }
         }
     }
-
+console.log("bookingInfo", bookingInfo)
+console.log("user  ", userCTX)
     return (
         <div className="min-h-screen w-screen flex justify-center">
                 <div className="bg-white flex flex-col w-full px-4 md:w-1/2 text-center mt-48">
@@ -75,9 +75,9 @@ const BookingSummary = () => {
                     </p>
 
                     {/* For Members: Show only the "Confirm Booking" button */}
-                    {user?.role === 'member' && (
+                    {userCTX?.role === 'member' && (
                         <button
-                            onClick={confirmHandle}
+                            onClick={confirmBookingHandle}
                             className="mt-4 bg-blue-500 text-white font-bold py-2 p-4 rounded hover:bg-blue-700"
                         >
                             Confirm Booking
@@ -85,7 +85,7 @@ const BookingSummary = () => {
                     )}
 
                     {/* For Non-Members: Show "Pay Now" button first, then "Confirm Booking" after payment */}
-                    {user?.role === 'non-member' && !bookingInfo?.isPaid && (
+                    {userCTX?.role === 'non-member' && !bookingInfo?.isPaid && (
                         <button
                             className="mt-4 bg-green-500 text-white font-bold py-2 p-4 rounded hover:bg-green-700"
                             onClick={paymentHandle}
@@ -93,9 +93,9 @@ const BookingSummary = () => {
                             Pay Now
                         </button>
                     )}
-                    {user?.role === 'non-member' && bookingInfo?.isPaid && (
+                    {userCTX?.role === 'non-member' && bookingInfo?.isPaid && (
                         <button
-                            onClick={confirmHandle}
+                            onClick={confirmBookingHandle}
                             className="mt-4 bg-blue-500 text-white font-bold py-2 p-4 rounded hover:bg-blue-700"
                         >
                             Confirm Booking

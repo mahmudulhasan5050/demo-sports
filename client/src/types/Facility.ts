@@ -3,4 +3,5 @@ export interface Facility {
     type: string;
     courtNumber: number;
     pricePerHour: number;
+    isActive: boolean;
   }

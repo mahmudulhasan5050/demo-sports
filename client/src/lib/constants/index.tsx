@@ -5,6 +5,7 @@ import {
 	HiOutlineQuestionMarkCircle,
 	HiOutlineCog
 } from 'react-icons/hi'
+import { FaUser } from "react-icons/fa";
 import { GiTennisCourt } from "react-icons/gi";
 import { MdOutlineBookmark } from "react-icons/md";
 import { MdSportsTennis } from "react-icons/md";
@@ -33,6 +34,12 @@ export const DASHBOARD_SIDEBAR_LINKS = [
 		label: 'Opening Hours',
 		path: '/admin/openinghour',
 		icon: <HiOutlineClock />
+	},
+	{
+		key: 'users',
+		label: 'Users',
+		path: '/admin/user',
+		icon: <FaUser />
 	},
 	{
 		key: 'bookings',

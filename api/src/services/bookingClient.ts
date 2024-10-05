@@ -28,7 +28,7 @@ const getUserBooking = async(userId: mongoose.Types.ObjectId) =>{
 const deleteBookingByUser = async (bookingId: string) => {
   
   const deleteFromDatabase = await Booking.findByIdAndDelete(bookingId);
-
+console.log("deleteFromDatabase service", deleteFromDatabase)
   if (!deleteFromDatabase) throw new NotFoundError('Facility is not found');
   return deleteFromDatabase;
 };

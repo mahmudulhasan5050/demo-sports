@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 export const calculateTimeDifference = (date: Date, time: string) =>{
       // Get the current date and time
       const currentTime = moment.tz('Europe/Helsinki');
-      console.log('currentTime:', currentTime.format('YYYY-MM-DD HH:mm:ss'));
+     console.log('currentTime:', currentTime.format('YYYY-MM-DD HH:mm:ss'));
   
       // Get the start time of the booking
       const bookingDateTime = moment.tz(

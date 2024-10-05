@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { FaArrowLeft } from 'react-icons/fa'
+import { Link } from 'react-router-dom'
 
 import { todayToString, count15DaysFromToday } from '../utils/dates'
-import { axiosAvailableTime, axiosBookingCreate } from '../axios'
+import { axiosAvailableTime } from '../axios'
 import { Facility } from '../types/Facility'
 import { AxiosRequestForFetchDataType } from '../types/AxiosRequestForFetchData'
 import { useUser } from '../context/UserContext'
@@ -13,10 +15,20 @@ import ErrorComp from '../components/client/ErrorComp'
 import TimeSlot from '../components/client/bookingClient/TimeSlot'
 import AvailableFacility from '../components/client/bookingClient/AvailableFacility'
 import Duration from '../components/client/bookingClient/Duration'
-import { BookingObjCTXType } from '../types/bookingNUser'
+import { allUpperCase } from '../utils/upperLowerConvert'
+
+export interface CreateBookingObjType {
+    date: string
+    facilityName: string
+    time: string
+    duration: number
+    facilityId: string
+    paymentAmount: number
+    isPaid: boolean
+}
 
 const BookingClient = () => {
-    const { user, bookingDetailsCTX, setBookingDetailsCTX } = useUser()
+    const { userCTX } = useUser()
 
     const { facilityName } = useParams<{ facilityName: string }>()
     const navigate = useNavigate()
@@ -80,12 +92,11 @@ const BookingClient = () => {
                 facilityName: facilityName!,
                 paymentAmount: totalCost,
                 isPaid: false
-            } as BookingObjCTXType
+            } as CreateBookingObjType
 
-            setBookingDetailsCTX(bookingObjCTX)
             localStorage.setItem('booking', JSON.stringify(bookingObjCTX))
             // When is logged In
-            if (user && user.email) {
+            if (userCTX && userCTX.name) {
                 navigate('/booking-summary')
             } else {
                 //When user is not loggedIn
@@ -111,6 +122,18 @@ const BookingClient = () => {
 
     return (
         <div className="min-h-screen flex flex-col items-center px-4 mt-10">
+            <div className="w-full md:w-1/2 text-center mb-10 flex items-center justify-center">
+                {/* Left arrow for redirect */}
+                <Link to="/" className="mr-4 flex items-center">
+                    <FaArrowLeft className="text-gray-700 text-2xl hover:text-blue-500 transition duration-300" />
+                </Link>
+
+                {/* Title with dynamic horizontal line */}
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-700 mb-2 inline-block relative">
+                    {allUpperCase(facilityName!)}
+                    <span className="block h-2 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 mt-2 rounded-md"></span>
+                </h1>
+            </div>
             <div className="w-full md:w-1/2 rounded-lg mb-16">
                 <label className="block text-gray-700 text-md font-bold mb-2">Select Date</label>
                 <input

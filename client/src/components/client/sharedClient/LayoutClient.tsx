@@ -8,7 +8,7 @@ const LayoutClient = () => {
         <div className="h-screen w-screen overflow-x-hidden flex flex-row">
             <div className="flex-1">
                 <HeaderClient />
-                <div>{<Outlet />}</div>
+                <Outlet />
             </div>
         </div>
     )

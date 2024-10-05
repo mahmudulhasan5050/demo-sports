@@ -12,13 +12,13 @@ interface SummaryBookingType {
 }
 
 const SummaryBooking = ({ date, time, duration,facilityId, facilityName, costPerHour }: SummaryBookingType) => {
-    const {user} = useUser()
+    const {userCTX} = useUser()
     const navigate = useNavigate()
     const totalCost = (costPerHour * duration) / 60
     const handleBooking = () => {
         const bookingData = { date, time, duration, facilityName, facilityId, costPerHour, totalCost };
         localStorage.setItem('booking', JSON.stringify(bookingData))
-if(!user){
+if(!userCTX){
     navigate('/signIn')
 }
     }

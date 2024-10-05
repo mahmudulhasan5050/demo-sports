@@ -7,6 +7,7 @@ import express, {
   ErrorRequestHandler,
 } from 'express';
 import mongoose from 'mongoose'
+import passport from 'passport'
 import createHttpError from 'http-errors';
 import cors from 'cors'
 
@@ -20,6 +21,8 @@ import bookingRouter from './routes/booking'
 import authRouter from './routes/auth'
 import bookingClientRouter from './routes/bookingClient'
 import bookingClientFinalRouter from './routes/bookingClientFinal';
+import refundRouter from './routes/refund'
+import { jwtStrategy } from './config/passport';
 
 //Database connection
 mongoose
@@ -31,11 +34,17 @@ mongoose
     console.log('Mongo Error' + err);
   });
 
+
+
 // Create an Express application
 const app: Application = express();
-app.use(cors());
+app.use(cors({origin: 'http://localhost:3000'}));
 app.use(express.json({limit: '100mb'}))
 app.use(express.urlencoded({extended: true}))
+
+
+app.use(passport.initialize())
+passport.use(jwtStrategy)
 
 
 //all routes list
@@ -54,6 +63,9 @@ app.use('/api/v1/booking', bookingRouter)
 app.use('/api/v1/booking-client', bookingClientRouter)
 //user auth needed
 app.use('/api/v1/booking-client-final', bookingClientFinalRouter)
+
+//refund
+app.use('/api/v1/refund', refundRouter)
 
 //auth
 app.use('/api/v1/auth', authRouter)

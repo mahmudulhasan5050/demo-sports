@@ -4,6 +4,7 @@ import Modal from './Modal'
 import { axiosDeleteBookingByUser, axiosFetchBookingsByUser } from '../../../axios'
 import { Facility } from '../../../types/Facility'
 import toast from 'react-hot-toast'
+import { calculateTimeDifference } from '../../../utils/timeDifference'
 
 interface OwnBooking {
     _id: string
@@ -19,13 +20,13 @@ interface PropsType {
 
 const OwnScheduleModal = ({ isOpen, onClose }: PropsType) => {
     const [bookings, setBookings] = useState<OwnBooking[]>([])
-    const { user } = useUser()
+    const { userCTX } = useUser()
 
     useEffect(() => {
         const fetchUserBookingData = async () => {
             if (isOpen) {
                 try {
-                    const res = user && (await axiosFetchBookingsByUser(user.email))
+                    const res = userCTX && (await axiosFetchBookingsByUser())
                     setBookings(res?.data)
                 } catch (error) {
                     console.log('error for fetching data')
@@ -34,14 +35,19 @@ const OwnScheduleModal = ({ isOpen, onClose }: PropsType) => {
         }
 
         fetchUserBookingData()
-    }, [isOpen, user])
+    }, [isOpen, userCTX])
 
     const handleCancel = async(bookingId: string) => {
+        console.log("booking id ", bookingId)
         try {
-            await axiosDeleteBookingByUser(bookingId)
+           await axiosDeleteBookingByUser(bookingId)
+
+            setBookings(bookings.filter(booking => booking._id !== bookingId))
             toast.success('Your booking is cancelled.')
+        
         } catch (error) {
             toast.error('Can not be cancelled. ')
+            console.log("errors:::::    ",error)
         }
         // Logic to cancel the booking
         console.log(`Booking ${bookingId} canceled`)
@@ -51,11 +57,11 @@ const OwnScheduleModal = ({ isOpen, onClose }: PropsType) => {
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <h2 className="text-xl font-bold mb-4">Your Bookings</h2>
-            <div className="max-h-96 overflow-y-auto">
+            <div className="max-h-96 overflow-y-auto ml-0">
                 {bookings.length > 0 ? (
-                    <ul className="space-y-4">
+                    <ul className="space-y-4 ml-0">
                         {bookings.map((booking, index) => (
-                            <li key={index} className="p-2 border rounded shadow-sm">
+                            <li key={index} className="p-2 border rounded shadow-sm ml-0">
                                 <p>
                                     <strong>Facility:</strong> {booking.facility.type} - {booking.facility.courtNumber}
                                 </p>
@@ -71,8 +77,9 @@ const OwnScheduleModal = ({ isOpen, onClose }: PropsType) => {
                                 <button
                                     onClick={() => handleCancel(booking._id)} // Or another unique identifier
                                     className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-700"
+                     
                                 >
-                                    Cancel
+                                 {calculateTimeDifference(booking.date, booking.startTime) ? 'Cancellation is not passible' : 'Cancel'}
                                 </button>
                             </li>
                         ))}

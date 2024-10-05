@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../types/User';
 
-import { axiosCreateUser } from '../axios/index';
+import { axiosSignUp } from '../axios/index';
 
 const SignUp = () => {
   const [formData, setFormData] = useState<User>({
@@ -23,9 +23,8 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await axiosCreateUser(formData);
-      console.log("test from signup")
-      console.log(res.data)
+      await axiosSignUp(formData);
+
       setFormData({
         name: '',
         email: '',

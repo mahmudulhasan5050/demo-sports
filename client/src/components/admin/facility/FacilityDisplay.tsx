@@ -5,13 +5,13 @@ import { firstLetterUpperCase } from '../../../utils/upperLowerConvert'
 import { Facility } from '../../../types/Facility'
 import { axiosFetchFacility, axiosDeleteFacility } from '../../../axios'
 
-type setRefreshType = {
+type SetRefreshType = {
     refresh: boolean
     setFacilityId: (value: string) => void
     setRefresh: (value: boolean) => void
 }
 
-const FacilityUnitDisplay = ({ refresh, setFacilityId, setRefresh }: setRefreshType) => {
+const FacilityUnitDisplay = ({ refresh, setFacilityId, setRefresh }: SetRefreshType) => {
     const [facilities, setFacilities] = useState<Facility[]>([])
 
     // Fetch Facility when component mounts
@@ -54,6 +54,7 @@ const FacilityUnitDisplay = ({ refresh, setFacilityId, setRefresh }: setRefreshT
                                 <th className="py-2 px-4 border-b">Name</th>
                                 <th className="py-2 px-4 border-b">Court</th>
                                 <th className="py-2 px-4 border-b">Price</th>
+                                <th className="py-2 px-4 border-b">Status</th>
                                 <th className="py-2 px-4 border-b">Action</th>
                             </tr>
                         </thead>
@@ -63,6 +64,8 @@ const FacilityUnitDisplay = ({ refresh, setFacilityId, setRefresh }: setRefreshT
                                     <td className="py-2 px-4 border-b">{firstLetterUpperCase(unit.type)}</td>
                                     <td className="py-2 px-4 border-b">{unit.courtNumber}</td>
                                     <td className="py-2 px-4 border-b">{unit.pricePerHour}</td>
+                                    <td className="py-2 px-4 border-b">{unit.isActive ? 'Active': 'Inactive'}</td>
+                                    
                                     <td>
                                         <div className="flex gap-2">
                                             <button
@@ -77,6 +80,7 @@ const FacilityUnitDisplay = ({ refresh, setFacilityId, setRefresh }: setRefreshT
                                             <button
                                                 onClick={() => unit._id && handleDelete(unit._id)}
                                                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-4 rounded focus:outline-none focus:shadow-outline"
+                                                hidden
                                             >
                                                 Delete
                                             </button>

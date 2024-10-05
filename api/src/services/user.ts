@@ -10,11 +10,11 @@ const getUserById = async(userId:string) =>{
   return await User.findById(userId)
 }
 
-//create
-const createUser = async (newUser: IUser) => {
-  const saveUser = await newUser.save();
-  return saveUser;
-};
+// //create
+// const createUser = async (newUser: IUser) => {
+//   const saveUser = await newUser.save();
+//   return saveUser;
+// };
 
 //update
 const updateUser = async (
@@ -43,7 +43,6 @@ const deleteUser = async (userId: string) => {
 export default {
     allUsers,
     getUserById,
-    createUser,
     updateUser,
     deleteUser
 };

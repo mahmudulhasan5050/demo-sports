@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 import bookingClientServices from '../services/bookingClient';
 import Booking, { IBooking } from '../models/Booking';
-import { BadRequestError, NotFoundError } from '../apiErrors/apiErrors';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../apiErrors/apiErrors';
 import Facility, { IFacility } from '../models/Facility';
 import OpeningHour from '../models/OpeningHour';
 import {
@@ -11,7 +11,7 @@ import {
   filterAvailableSlots,
   generateTimeSlots,
 } from '../utils/timeSlotHelper';
-import User from '../models/User';
+import User, { IUser } from '../models/User';
 import { calculateTimeDifference } from '../utils/timeDifference';
 
 // get available time
@@ -137,16 +137,7 @@ export const getAvailableDuration = async (
       selectedFacilityId
   );
   try {
-    const validDurations = [30, 60, 90];
-    // Find the facility by name
-    // const facilities: IFacility[] = await Facility.find({
-    //   type: facilityName,
-    // }).exec();
-    // if (!facilities || facilities.length === 0) {
-    //   return res.status(404).json({ error: 'Facility not found' });
-    // }
-
-    // const facilityIds = facilities.map((facility) => facility._id);
+    const validDurations = [30, 60, 90]; //customer wanted strict game duration for booking
     // Find bookings for the selected date
     const bookings = await Booking.find({
       facility: selectedFacilityId,
@@ -183,9 +174,12 @@ export const getUserBooking = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { email } = req.params;
+  const user = req.user as IUser;
+  if (!user) {
+    return next(new ForbiddenError('User not authenticated'));
+  }
   try {
-    const isExist = await User.findOne({ email });
+    const isExist = await User.findById(user._id);
     if (!isExist) throw new NotFoundError();
     const bookingsByUserSuccess = await bookingClientServices.getUserBooking(
       isExist._id as mongoose.Types.ObjectId
@@ -234,8 +228,9 @@ export const deleteBookingByUser = async (
         )
       );
     } else {
-      await bookingClientServices.deleteBookingByUser(bookingId);
-      res.status(204).end();
+      const deleteSuccess = await bookingClientServices.deleteBookingByUser(bookingId);
+      console.log("deleteSuccess controller:: ", deleteSuccess)
+      res.status(204).json(deleteSuccess);
     }
   } catch (error) {
     next(new BadRequestError('Can not delete.....', error));

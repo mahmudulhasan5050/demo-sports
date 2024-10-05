@@ -2,12 +2,12 @@ import Cookies from 'js-cookie';
 
 export type Token = {
   token: string;
-  email: string;
   name: string;
   role: string;
+  expiresIn:string;
 };
 
-export const saveToken = (token: Token) => {
+export const saveToken = (token: string) => {
   Cookies.set('token', JSON.stringify(token));
 };
 

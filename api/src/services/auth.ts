@@ -1,7 +1,7 @@
 import { NotFoundError } from '../apiErrors/apiErrors';
 import User, { IUser } from '../models/User';
 
-import { generateToken } from '../utils/crypto';
+import { generateToken, issueJWT } from '../utils/crypto';
 import { secretAuth } from '../utils/secrets';
 
 //create
@@ -21,16 +21,32 @@ const confirmEmail = async (user: IUser) => {
 };
 
 const signIn = async (user: IUser) => {
-  const token = generateToken(user.email, secretAuth);
+  const token = issueJWT(user);
 
-  const email = user.email;
-  const name = user.name;
-  const role= user.role;
-  return { token, email, name, role };
+  return {
+    name: user.name,
+    role: user.role,
+    token: token.token,
+    expiresIn: token.expires,
+  };
 };
+
+
+const forgotPassword = async(user: IUser) =>{
+const saveUser = await user.save()
+return saveUser
+}
+
+const resetPassword = async(user:IUser)=>{
+  const saveUser = await user.save()
+  return saveUser
+}
 
 export default {
   signUp,
   confirmEmail,
   signIn,
+  forgotPassword,
+  resetPassword
+
 };

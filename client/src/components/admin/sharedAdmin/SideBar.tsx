@@ -28,12 +28,12 @@ const SideBarLink = ({ item }: any) => {
 }
 
 const SideBar = () => {
-    const { setUser } = useUser();
+    const { setUserCTX } = useUser();
     const navigate = useNavigate()
 
     const handleLogout = () => {
         removeToken();
-        setUser(null);
+        setUserCTX(null);
         navigate('/signin')
       };
 

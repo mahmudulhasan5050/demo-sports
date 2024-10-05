@@ -1,21 +1,41 @@
 import express from 'express';
+import passport from 'passport';
 
-import FacilityUnit from '../models/FacilityUnit';
-import { allFacilityUnit,createFacilityUnit, updateFacilityUnit,deleteFacilityUnit } from '../controllers/facilityUnit';
+import {
+  allFacilityUnit,
+  createFacilityUnit,
+  updateFacilityUnit,
+  deleteFacilityUnit,
+} from '../controllers/facilityUnit';
+import adminAuthMiddleware from '../middleware/adminAuthMiddleware';
 
-
-const router = express.Router()
+const router = express.Router();
 
 //get all
-router.get('/', allFacilityUnit)
+router.get('/', allFacilityUnit);
 
 //create facilityUnit
-router.post('/', createFacilityUnit)
+router.post(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  adminAuthMiddleware,
+  createFacilityUnit
+);
 
 //update one facilityUnit
-router.post('/:facilityUnitId', updateFacilityUnit)
+router.post(
+  '/:facilityUnitId',
+  passport.authenticate('jwt', { session: false }),
+  adminAuthMiddleware,
+  updateFacilityUnit
+);
 
 //delete facilityUnit
-router.delete('/:facilityUnitId', deleteFacilityUnit)
+router.delete(
+  '/:facilityUnitId',
+  passport.authenticate('jwt', { session: false }),
+  adminAuthMiddleware,
+  deleteFacilityUnit
+);
 
-export default router
+export default router;

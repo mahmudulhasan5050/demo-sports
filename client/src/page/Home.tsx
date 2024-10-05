@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FcSportsMode } from 'react-icons/fc'
 
-import { useUser } from '../context/UserContext'
 import { firstLetterUpperCase } from '../utils/upperLowerConvert'
 import { axiosFetchFacilityUnits } from '../axios/index'
 import heroImage from '../assets/hero1.svg'
@@ -10,12 +9,10 @@ import heroImage from '../assets/hero1.svg'
 const Home = () => {
     const navigate = useNavigate()
     const [dropdownOpen, setDropdownOpen] = useState(false)
-    const { bookingDetailsCTX, setBookingDetailsCTX } = useUser()
     const [facilityUnit, setFacilityUnit] = useState<any[]>([])
 
     useEffect(() => {
         const fetchFacilityUnits = async () => {
-            setBookingDetailsCTX(null)
             try {
                 const response = await axiosFetchFacilityUnits()
                 setFacilityUnit(response.data) // Assuming response.data contains the facilities
@@ -25,11 +22,11 @@ const Home = () => {
         }
 
         fetchFacilityUnits() // Call the async function
-    }, [setBookingDetailsCTX])
+    }, [])
 
 
     return (
-        <div className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden pt-10 md:pt-5 mt-0 md:mt-0">
+        <div className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden mt-0 md:mt-0">
             {/* Left side: Hero Image */}
             <div className="md:w-1/2 w-full mt-5 h-64 md:h-auto md:mt-0">
                 <img src={heroImage} alt="Hero" className="w-full h-full object-cover object-top" />

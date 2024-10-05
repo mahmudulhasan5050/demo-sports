@@ -5,12 +5,13 @@ import Booking from '../models/Booking';
 import {
   AlreadyExistError,
   BadRequestError,
+  ForbiddenError,
   NotFoundError
 } from '../apiErrors/apiErrors';
 import Facility from '../models/Facility';
 import {addMinutes} from '../utils/timeSlotHelper'
 import mongoose from 'mongoose';
-import User from '../models/User';
+import User, { IUser } from '../models/User';
 
 
 //create booking
@@ -19,8 +20,13 @@ export const createBooking = async (
   res: Response,
   next: NextFunction
 ) => {
+  const user = req.user as IUser;
+  if (!user) {
+    return next(new ForbiddenError('User not authenticated'));
+  }
+
   const facilityId = req.params.facilityId;
-  const { email, date, time, duration, paymentAmount, isPaid } = req.body;
+  const { date, time, duration, paymentAmount, isPaid } = req.body;
 
   //check facilityId is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(facilityId)) {
@@ -29,9 +35,10 @@ export const createBooking = async (
   try {
     //check facilityId exist'
     const facilityExist = await Facility.findById(facilityId);
-    const userExist = await User.findOne({email})
+    if(!facilityExist) throw new NotFoundError()
+    const userExist = await User.findById(user._id)
     if(!userExist) throw new NotFoundError()
-    console.log('facilityExist: ', facilityExist);
+
     // check existance
     const isExist = await Booking.findOne({
       facility: facilityId,
@@ -43,7 +50,6 @@ export const createBooking = async (
     //create new facility according to user input
     const endTime = addMinutes(time,duration)
     
-    console.log("endTime", endTime)
     const newBooking = new Booking({
       user: userExist._id,
       facility: facilityId,
