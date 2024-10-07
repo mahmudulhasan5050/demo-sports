@@ -9,6 +9,7 @@ import { FaUser } from "react-icons/fa";
 import { GiTennisCourt } from "react-icons/gi";
 import { MdOutlineBookmark } from "react-icons/md";
 import { MdSportsTennis } from "react-icons/md";
+import { TbCreditCardRefund } from "react-icons/tb";
 
 export const DASHBOARD_SIDEBAR_LINKS = [
 	{
@@ -46,6 +47,12 @@ export const DASHBOARD_SIDEBAR_LINKS = [
 		label: 'Bookings',
 		path: '/admin/booking',
 		icon: <MdOutlineBookmark />
+	},
+	{
+		key: 'refund',
+		label: 'Refund',
+		path: '/admin/refund',
+		icon: <TbCreditCardRefund />
 	}
 ]
 

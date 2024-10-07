@@ -6,7 +6,7 @@ import {
   getAvailableCourt,
   getAvailableDuration,
   getUserBooking,
-  deleteBookingByUser,
+  cancelBookingByUser,
 } from '../controllers/bookingClient';
 
 const router = express.Router();
@@ -28,10 +28,10 @@ router.get(
 );
 
 // delete booking by user
-router.delete(
+router.post(
   '/:bookingId',
   passport.authenticate('jwt', { session: false }),
-  deleteBookingByUser
+  cancelBookingByUser
 ); //confusion!! Check which delete is being used
 
 export default router;

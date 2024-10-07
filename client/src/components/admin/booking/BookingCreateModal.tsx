@@ -4,8 +4,6 @@ import toast from 'react-hot-toast'
 import { User } from '../../../types/User'
 import { AdminBookingCreateType, BookingCreateType } from '../../../types/Booking'
 import { Facility } from '../../../types/Facility'
-import moment from 'moment-timezone'
-import { todayToString } from '../../../utils/dates'
 
 type BookingCreateModalPropsType = {
     isOpen: boolean
@@ -40,7 +38,7 @@ const BookingCreateModal = ({ isOpen, onClose, onSubmit }: BookingCreateModalPro
                 const resFacility = await axiosFetchFacility()
                 resFacility && setAllFacility(resFacility.data)
             } catch (error) {
-                console.log('Error------', error)
+             
                 toast.error('User info is not available')
             }
         }
@@ -81,7 +79,7 @@ const BookingCreateModal = ({ isOpen, onClose, onSubmit }: BookingCreateModalPro
             duration: 0 
         })
     }
-    console.log('form Data from bookingCreateModal: ', formData)
+
     return (
         <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
             <div className="absolute inset-0 bg-gray-900 opacity-50"></div>

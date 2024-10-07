@@ -6,9 +6,7 @@ import { secretAuth } from '../utils/secrets';
 
 //create
 const signUp = async (newUser: IUser) => {
-  console.log('newUser before services: ', newUser);
   const saveUser = await newUser.save();
-  console.log('saveUser after services: ', saveUser);
 
   return saveUser;
 };

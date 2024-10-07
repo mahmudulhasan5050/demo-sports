@@ -88,10 +88,8 @@ export const deleteFacilityUnit = async (
   next: NextFunction
 ) => {
   try {
-    console.log('delete controller');
     //get id from params
     const facilityUnitId = req.params.facilityUnitId;
-    console.log('facilityUnitId', facilityUnitId);
 
     await facilityUnitServices.deleteFacilityUnit(facilityUnitId);
     res.status(204).end();

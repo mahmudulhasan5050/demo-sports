@@ -32,7 +32,6 @@ export const getRefundById = async (
   next: NextFunction
 ) => {
   const refundId = req.params.refundId;
-  console.log('refundId', refundId);
   try {
     const refundByIdSuccess = await refundServices.getRefundById(refundId);
     res.status(200).json(refundByIdSuccess);
@@ -53,11 +52,9 @@ export const createRefund = async (
     const { bookingId } = req.params;
     const user = req.user as IUser;
 
-    console.log('bookingId ', bookingId);
     //find booking
     const bookingById = await Booking.findById(bookingId);
-    console.log('bookingById ', bookingById);
-    console.log('user ', user);
+
     if (bookingById) {
       //create new facility according to user input
       const newRefund = new Refund({
@@ -78,7 +75,7 @@ export const createRefund = async (
       next(new NotFoundError());
     }
   } catch (error) {
-    console.log('error:::::::::::::', error);
+
     next(new BadRequestError('Can not create refund', error));
   }
 };
@@ -102,7 +99,7 @@ export const updateRefund = async (
 
     res.status(204).json(updateSuccess);
   } catch (error) {
-    console.log(error);
+
     next(new ForbiddenError('Can not update', error));
   }
 };
@@ -113,10 +110,10 @@ export const deleteRefund = async (
   next: NextFunction
 ) => {
   try {
-    console.log('delete controller');
+
     //get id from params
     const refundId = req.params.refundId;
-    console.log('refundId', refundId);
+
 
     await refundServices.deleteRefund(refundId);
     res.status(204).end();

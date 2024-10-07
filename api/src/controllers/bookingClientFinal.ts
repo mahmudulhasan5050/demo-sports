@@ -44,6 +44,7 @@ export const createBooking = async (
       facility: facilityId,
       date: date,
       startTime: time,
+      isCancelled: false
     });
     if (isExist) throw new AlreadyExistError();
 

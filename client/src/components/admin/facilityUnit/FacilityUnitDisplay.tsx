@@ -21,7 +21,6 @@ const FacilityUnitDisplay = ({ refresh, setRefresh }: setRefreshType) => {
     const fetchFacilityUnits = async () => {
       try {
         const response = await axiosFetchFacilityUnits();
-        console.log('response.data ', response.data);
         setFacilityUnits(response.data);
       } catch (error) {
         console.error('Error fetching facility units:', error);

@@ -35,8 +35,6 @@ const BookingSummary = () => {
     }
 
     const paymentHandle = async () => {
-        // Simulate payment process
-        console.log('Payment process!!!!!')
         if (bookingInfo && userCTX) {
             try {
                 // Simulating payment success
@@ -51,8 +49,7 @@ const BookingSummary = () => {
             }
         }
     }
-console.log("bookingInfo", bookingInfo)
-console.log("user  ", userCTX)
+
     return (
         <div className="min-h-screen w-screen flex justify-center">
                 <div className="bg-white flex flex-col w-full px-4 md:w-1/2 text-center mt-48">

@@ -35,10 +35,8 @@ const SignIn = () => {
                 const localStorageBooking = localStorage.getItem('booking')
                 // When user is signin during booking process or user login other situation
                 if (localStorageBooking) {
-                    console.log('signIn: user when bookingCTX is present ', userCTX)
                     navigate('/booking-summary')
                 } else {
-                    console.log('signIn: user when no bookingCTX ', userCTX)
 
                     navigate('/')
                 }

@@ -21,9 +21,9 @@ import LayoutAdmin from './components/admin/sharedAdmin/LayoutAdmin'
 import Dashboard from './page/admin/Dashboard'
 import LayoutClient from './components/client/sharedClient/LayoutClient'
 import BookingSuccess from './components/client/BookingSuccess'
-import AuthSuccess from './components/client/AuthSuccess'
 import ForgotPassword from './page/ForgotPassword'
 import ResetPassword from './page/ResetPassword'
+import RefundMain from './page/admin/RefundMain'
 
 function App() {
     const location = useLocation();
@@ -53,7 +53,6 @@ function App() {
                 </Route> */}
 
                 {/* Admin */}
-
                 <Route path="/admin" element={<LayoutAdmin />}>
                     <Route index element={<Dashboard />} />
                     <Route path="facilityunit" element={<FacilityUnitMain />} />
@@ -61,6 +60,7 @@ function App() {
                     <Route path="openinghour" element={<OpeningHourMain />} />
                     <Route path="booking" element={<BookingMain />} />
                     <Route path="user" element={<UserMain />} />
+                    <Route path='refund' element={<RefundMain/>}/>
                 </Route>
             </Routes>
         </UserProvider>

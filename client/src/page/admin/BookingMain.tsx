@@ -20,7 +20,7 @@ const BookingMain = () => {
     const handleCreateBooking = async (bookingData: BookingCreateType) => {
         try {
             const res = await axiosAdminCreateBooking(bookingData)
-            console.log('res.....', res.data)
+    
             if (res.data) toast.success('Booking is confirmed!')
         } catch (error) {
             toast.error('Booking creation failed')

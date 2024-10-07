@@ -18,6 +18,8 @@ export interface Booking {
     duration: number;
     paymentAmount: number;
     isPaid: boolean;
+    isCancelled: boolean;
+    isRefunded: boolean;
   }
 
   export interface BookingCreateType {

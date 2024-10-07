@@ -143,7 +143,7 @@ export const signIn = async (
     // compare password
     if (user.hash && user.salt) {
       const isMatch = validPassword(password, user.hash, user.salt);
-      console.log('isMatch ', isMatch);
+
       if (!isMatch) {
         return res.status(400).json({ message: 'Invalid credentials' });
       }
@@ -171,7 +171,7 @@ export const forgotPassword = async (
   next: NextFunction
 ) => {
   const { email } = req.body;
-console.log("email:: con  ",email)
+
   try {
     const user = await User.findOne({ email });
     if (user) {

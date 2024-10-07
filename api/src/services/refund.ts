@@ -33,7 +33,6 @@ const updateRefund = async (
 
 //delete
 const deleteRefund = async (refundId: string) => {
-  console.log('delete services')
   const deleteFromDatabase = await Refund.findByIdAndDelete(refundId);
 
   if (!deleteFromDatabase) throw new NotFoundError('Refund is not found');

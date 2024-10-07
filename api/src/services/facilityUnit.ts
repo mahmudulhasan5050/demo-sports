@@ -29,7 +29,7 @@ const updateFacilityUnit = async (
 
 //delete
 const deleteFacilityUnit = async (facilityUnitId: string) => {
-  console.log('delete services')
+
   const deleteFromDatabase = await FacilityUnit.findByIdAndDelete(facilityUnitId);
 
   if (!deleteFromDatabase) throw new NotFoundError('FacilityUnit is not found');

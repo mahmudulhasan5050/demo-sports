@@ -7,6 +7,8 @@ import {
   deleteBooking,
   getBookingById,
   getBookingByDate,
+  getUnpaidRefund,
+  updateRefund,
 } from '../controllers/booking';
 import passport from 'passport';
 import adminAuthMiddleware from '../middleware/adminAuthMiddleware';
@@ -19,6 +21,11 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   adminAuthMiddleware,
   allBooking
+);
+
+router.get(
+  '/refund',
+  getUnpaidRefund
 );
 
 //get by id
@@ -52,6 +59,8 @@ router.post(
   adminAuthMiddleware,
   updateBooking
 ); //check is it being used or not
+
+router.post('/refund/:bookingId', updateRefund); // Do we need POST method to edit isRefund: true.
 
 //delete Booking
 router.delete(

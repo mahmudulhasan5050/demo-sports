@@ -1,4 +1,4 @@
-export function getBookingPaymentStatus(status: string) {
+export function getMemberRoleMark(status: string) {
 	switch (status) {
 		case 'member':
 			return (

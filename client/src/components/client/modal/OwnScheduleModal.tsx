@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useUser } from '../../../context/UserContext'
 import Modal from './Modal'
-import { axiosDeleteBookingByUser, axiosFetchBookingsByUser } from '../../../axios'
+import { axiosCancelBookingByUser, axiosFetchBookingsByUser } from '../../../axios'
 import { Facility } from '../../../types/Facility'
 import toast from 'react-hot-toast'
 import { calculateTimeDifference } from '../../../utils/timeDifference'
@@ -29,7 +29,7 @@ const OwnScheduleModal = ({ isOpen, onClose }: PropsType) => {
                     const res = userCTX && (await axiosFetchBookingsByUser())
                     setBookings(res?.data)
                 } catch (error) {
-                    console.log('error for fetching data')
+                    toast.error('Something went wrong.')
                 }
             }
         }
@@ -38,20 +38,15 @@ const OwnScheduleModal = ({ isOpen, onClose }: PropsType) => {
     }, [isOpen, userCTX])
 
     const handleCancel = async(bookingId: string) => {
-        console.log("booking id ", bookingId)
         try {
-           await axiosDeleteBookingByUser(bookingId)
+           await axiosCancelBookingByUser(bookingId)
 
             setBookings(bookings.filter(booking => booking._id !== bookingId))
             toast.success('Your booking is cancelled.')
         
         } catch (error) {
             toast.error('Can not be cancelled. ')
-            console.log("errors:::::    ",error)
         }
-        // Logic to cancel the booking
-        console.log(`Booking ${bookingId} canceled`)
-        // Here you could make a request to your API to cancel the booking.
     }
 
     return (

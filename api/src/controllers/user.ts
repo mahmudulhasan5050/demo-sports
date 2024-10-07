@@ -30,7 +30,7 @@ export const getUserById = async(
   next: NextFunction
 )=>{
   const userId = req.params.userId
-  console.log("userId", userId)
+
   try {
     const userByIdSuccess = await userServices.getUserById(userId)
     res.status(200).json(userByIdSuccess)
@@ -95,7 +95,7 @@ export const deleteUser = async(
   try {
     //get id from params
     const userId = req.params.userId
-console.log("userId", userId)
+
     await userServices.deleteUser(userId)
     res.status(204).end()
   } catch (error) {

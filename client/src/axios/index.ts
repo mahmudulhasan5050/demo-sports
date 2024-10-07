@@ -32,47 +32,48 @@ export const axiosUserBookingCreate = async (facililyId: string, bookingObj: Cre
     await customAxios.post(`/booking-client-final/${facililyId}`, bookingObj)
 export const axiosFetchBookingsByUser = async()=>
     await customAxios.get(`/booking-client/booking-for-user`)
-export const axiosDeleteBookingByUser = async(bookingId:string)=>
-    await customAxios.delete(`/booking-client/${bookingId}`)
+export const axiosCancelBookingByUser = async(bookingId:string)=>
+    await customAxios.post(`/booking-client/${bookingId}`)
 
 
 //admin
 //facility Unit CRUD
 export const axiosCreateFacilityUnit = async (facilityUnit: FacilityUnit) =>
-    await API.post('/facilityunit', facilityUnit)
-export const axiosFetchFacilityUnits = async () => await API.get('facilityunit')
+    await customAxios.post('/facilityunit', facilityUnit)
+export const axiosFetchFacilityUnits = async () => await customAxios.get('facilityunit')
 export const axiosDeleteFacilityUnit = async (facilityUnitId: string) =>
-    await API.delete(`/facilityunit/${facilityUnitId}`)
+    await customAxios.delete(`/facilityunit/${facilityUnitId}`)
 
 //facility CRUD
-export const axiosFetchFacility = async () => await API.get('/facility')
-export const axiosDeleteFacility = async (facililyId: string) => await API.delete(`/facility/${facililyId}`)
-export const axiosCreateFacility = async (newFicility: Facility) => await API.post('/facility', newFicility)
-export const axiosFetchFacilityById = async (facilityId: string) => await API.get(`/facility/${facilityId}`)
+export const axiosFetchFacility = async () => await customAxios.get('/facility')
+export const axiosDeleteFacility = async (facililyId: string) => await customAxios.delete(`/facility/${facililyId}`)
+export const axiosCreateFacility = async (newFicility: Facility) => await customAxios.post('/facility', newFicility)
+export const axiosFetchFacilityById = async (facilityId: string) => await customAxios.get(`/facility/${facilityId}`)
 export const axiosUpdateFacility = async (facilityId: string, editFacility: Facility) =>
-    await API.post(`/facility/${facilityId}`, editFacility)
+    await customAxios.post(`/facility/${facilityId}`, editFacility)
 
 //opening hour CRUD
-export const axiosFetchOpeningHour = async () => await API.get('/openinghour')
-export const axiosDeleteOpeningHour = async (openingHourtId: string) => API.delete(`/openinghour/${openingHourtId}`)
-export const axiosFetchOpeningHourById = async (openingHourtId: string) => API.get(`/openinghour/${openingHourtId}`)
+export const axiosFetchOpeningHour = async () => await customAxios.get('/openinghour')
+export const axiosDeleteOpeningHour = async (openingHourtId: string) => customAxios.delete(`/openinghour/${openingHourtId}`)
+export const axiosFetchOpeningHourById = async (openingHourtId: string) => customAxios.get(`/openinghour/${openingHourtId}`)
 export const axiosUpdateOpeningHour = async (openingHourtId: string, editOpeningHour: OpeningHour) =>
-    API.post(`/openinghour/${openingHourtId}`, editOpeningHour)
-export const axiosCreateOpeningHour = async (newOpeningHour: OpeningHour) => API.post('/openinghour', newOpeningHour)
+    customAxios.post(`/openinghour/${openingHourtId}`, editOpeningHour)
+export const axiosCreateOpeningHour = async (newOpeningHour: OpeningHour) => customAxios.post('/openinghour', newOpeningHour)
 
 //booking CRUD
-export const axiosFetchBookings = async () => await API.get('/booking')
+export const axiosFetchBookings = async () => await customAxios.get('/booking')
 // export const axiosFetchBookingById = async(bookingId:string)=>
 //     await API.get(`/booking/${bookingId}`) // This is for Edit booking
 export const axiosAdminCreateBooking = async(bookingObjAdmin:BookingCreateType) =>
-    await API.post(`/booking`, bookingObjAdmin)
-export const axiosDeleteBooking = async (id: string) => await API.get(`/booking/${id}`)
+    await customAxios.post(`/booking`, bookingObjAdmin)
+//export const axiosDeleteBooking = async (id: string) => await API.get(`/booking/${id}`)
 export const axiosGetBookingByDate = async(date: string) =>
-    await API.get(`/booking/booking-by-date/${date}`)
-
+    await customAxios.get(`/booking/booking-by-date/${date}`)
+export const axiosFetchBookingForRefund = async()=> await customAxios.get('/booking/refund')
+export const updateBookingAfterRefund_A = async(bookingId: string)=> await customAxios.post(`/booking/refund/${bookingId}`)
 
 // users
-export const axiosFetchUsers = async () => await API.get('/user')
-export const axiosDeleteUser = async (userId: string) => await API.delete(`/user/${userId}`)
-export const axiosUserById = async(userId: string)=> await API.get(`/user/${userId}`)
-export const axiosEditUser = async(userId:string, userData: User) => API.post(`/user/${userId}`, userData)
+export const axiosFetchUsers = async () => await customAxios.get('/user')
+export const axiosDeleteUser = async (userId: string) => await customAxios.delete(`/user/${userId}`)
+export const axiosUserById = async(userId: string)=> await customAxios.get(`/user/${userId}`)
+export const axiosEditUser = async(userId:string, userData: User) => customAxios.post(`/user/${userId}`, userData)

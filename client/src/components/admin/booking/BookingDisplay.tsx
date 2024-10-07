@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { getBookingPaymentStatus } from '../../../utils/getBookingPaymentStatus'
+import { getMemberRoleMark } from '../../../utils/getBookingPaymentStatus'
 import { Booking } from '../../../types/Booking'
-import { axiosDeleteBooking, axiosFetchBookings } from '../../../axios'
+import { axiosFetchBookings } from '../../../axios'
 import toast from 'react-hot-toast'
 //import { format } from 'date-fns'
 
@@ -28,15 +28,15 @@ const BookingDisplay = ({ refresh, setBookingId, setRefresh }: setRefreshType) =
         fetchBookings()
     }, [refresh])
 
-    const handleDelete = async (id: string) => {
-        try {
-            await axiosDeleteBooking(id)
-            setBookings(bookings.filter((unit) => unit._id !== id))
-            toast.success('Booking has been deleted.')
-        } catch (error) {
-            toast.error('Booking can not be deleted.')
-        }
-    }
+    // const handleDelete = async (id: string) => {
+    //     try {
+    //         await axiosDeleteBooking(id)
+    //         setBookings(bookings.filter((unit) => unit._id !== id))
+    //         toast.success('Booking has been deleted.')
+    //     } catch (error) {
+    //         toast.error('Booking can not be deleted.')
+    //     }
+    // }
     return (
         <div className="bg-white px-4 pt-3 pb-4 rounded-sm border border-gray-200 flex-1">
             <strong className="text-gray-700 font-medium">Recent Booking</strong>
@@ -66,15 +66,15 @@ const BookingDisplay = ({ refresh, setBookingId, setRefresh }: setRefreshType) =
                                 <td>{booking.startTime}</td>
                                 <td>{booking.paymentAmount}</td>
                                 <td>{booking.isPaid ? 'Paid' : 'Unpaid'}</td>
-                                <td>{getBookingPaymentStatus(booking.user?.role)}</td>
-                                <td>
+                                <td>{getMemberRoleMark(booking.user?.role)}</td>
+                                {/* <td>
                                     <button
                                         onClick={() => booking._id && handleDelete(booking._id)}
                                         className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-4 rounded focus:outline-none focus:shadow-outline"
                                     >
                                         Delete
                                     </button>
-                                </td>
+                                </td> */}
                             </tr>
                         ))}
                     </tbody>

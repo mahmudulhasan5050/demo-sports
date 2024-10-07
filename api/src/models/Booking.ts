@@ -10,6 +10,10 @@ export interface IBooking extends Document {
    duration: number;
    paymentAmount: number;
    isPaid: boolean;
+   isCancelled: boolean;
+   isRefunded: boolean;
+   cancelledAt: Date;
+   refundedAt: Date;
    createdAt: Date;
  }
  
@@ -22,6 +26,10 @@ export interface IBooking extends Document {
    duration: { type: Number, required: true },
    paymentAmount: { type: Number, required: true, default: 0 },
    isPaid: { type: Boolean, default: false },
+   isCancelled: {type: Boolean, default: false},
+   cancelledAt:{type: Date, default: Date.now},
+   isRefunded: {type: Boolean, default: false},
+   refundedAt: {type: Date, default: Date.now},
    createdAt: { type: Date, default: Date.now }
  });
   

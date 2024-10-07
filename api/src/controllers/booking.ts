@@ -13,16 +13,16 @@ import mongoose from 'mongoose';
 import User from '../models/User';
 import { addMinutes } from '../utils/timeSlotHelper';
 
-
 //get all booking
 export const allBooking = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log('all controller');
+
   try {
     const findAllBookings = await bookingServices.allBooking();
+
     res.status(200).json(findAllBookings);
   } catch (error) {
     next(new BadRequestError('Invalid Request', error));
@@ -30,38 +30,36 @@ export const allBooking = async (
 };
 
 //get by id
-export const getBookingById = async(
+export const getBookingById = async (
   req: Request,
   res: Response,
   next: NextFunction
-)=>{
-const bookingId = req.params.bookingId
-try {
-  const bookingByIdSuccess = await bookingServices.getBookingById(bookingId)
-  res.status(200).json(bookingByIdSuccess)
-} catch (error) {
-  next(new BadRequestError('Invalid Request', error));
-}
-}
+) => {
+  const bookingId = req.params.bookingId;
+  try {
+    const bookingByIdSuccess = await bookingServices.getBookingById(bookingId);
+    res.status(200).json(bookingByIdSuccess);
+  } catch (error) {
+    next(new BadRequestError('Invalid Request', error));
+  }
+};
 
 //get Booking by date
-export const getBookingByDate = async(
+export const getBookingByDate = async (
   req: Request,
   res: Response,
   next: NextFunction
-)=>{
-  const date = req.params.date
-  console.log("date   ",date)
-  try {
-    
-    const bookingByDateSuccess = await bookingServices.getBookingByDate(date)
-    console.log("bookingByDateSuccess ", bookingByDateSuccess)
-    res.status(200).json(bookingByDateSuccess)
-  } catch (error) {
-    next(new BadRequestError('Date is not valid', error))
-  }
-}
+) => {
+  const date = req.params.date;
 
+  try {
+    const bookingByDateSuccess = await bookingServices.getBookingByDate(date);
+
+    res.status(200).json(bookingByDateSuccess);
+  } catch (error) {
+    next(new BadRequestError('Date is not valid', error));
+  }
+};
 
 //create booking
 export const createAdminBooking = async (
@@ -69,30 +67,31 @@ export const createAdminBooking = async (
   res: Response,
   next: NextFunction
 ) => {
-
   const { email, facilityId, date, startTime, duration } = req.body;
 
-  // //check facilityId is a valid ObjectId
-  // if (!mongoose.Types.ObjectId.isValid(facilityId)) {
-  //   throw new BadRequestError('Invalid facility ID');
-  // }
   try {
     //check facilityId exist'
     const facilityExist = await Facility.findById(facilityId);
-    if(!facilityExist){next(new NotFoundError())}
-    const userExist = await User.findOne({email})
-    if(!userExist){next(new NotFoundError())}
+    if (!facilityExist) {
+      next(new NotFoundError());
+    }
+    const userExist = await User.findOne({ email });
+    if (!userExist) {
+      next(new NotFoundError());
+    }
 
-    console.log('facilityExist: ', facilityExist);
+
     // check existance
     const isExist = await Booking.findOne({
       facility: facilityId,
       date: date,
       startTime: startTime,
     });
-    if (isExist){next(new AlreadyExistError())};
+    if (isExist) {
+      next(new AlreadyExistError());
+    }
 
-    const endTime = addMinutes(startTime, duration)
+    const endTime = addMinutes(startTime, duration);
 
     //create new facility according to user input
     const newBooking = new Booking({
@@ -141,6 +140,43 @@ export const updateBooking = async (
   }
 };
 
+// get booking which has pending refund
+export const getUnpaidRefund = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const findAllUnpaidRefund = await bookingServices.getUnpaidRefund();
+
+    res.status(200).json(findAllUnpaidRefund);
+  } catch (error) {
+
+    next(new BadRequestError('Invalid Request1', error));
+  }
+};
+
+// refund update in booking
+export const updateRefund = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { bookingId } = req.params;
+
+  try {
+    const isExist = await Booking.findById(bookingId);
+    if (isExist) {
+      isExist.isRefunded = true;
+      const refundSuccess = await bookingServices.updateRefund(isExist);
+    } else {
+      next(new NotFoundError());
+    }
+  } catch (error) {
+    next(new BadRequestError('Invalid Request', error));
+  }
+};
+
 export const deleteBooking = async (
   req: Request,
   res: Response,
@@ -156,5 +192,3 @@ export const deleteBooking = async (
     next(new BadRequestError('Can not delete.....', error));
   }
 };
-
-

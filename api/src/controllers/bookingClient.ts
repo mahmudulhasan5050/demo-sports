@@ -3,7 +3,11 @@ import mongoose from 'mongoose';
 
 import bookingClientServices from '../services/bookingClient';
 import Booking, { IBooking } from '../models/Booking';
-import { BadRequestError, ForbiddenError, NotFoundError } from '../apiErrors/apiErrors';
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+} from '../apiErrors/apiErrors';
 import Facility, { IFacility } from '../models/Facility';
 import OpeningHour from '../models/OpeningHour';
 import {
@@ -98,6 +102,7 @@ export const getAvailableCourt = async (
     // Find bookings for the selected date
     const bookings = await Booking.find({
       facility: { $in: facilityIds },
+      isCancelled: false,
       date: selectedDate,
     }).select('facility startTime endTime duration');
 
@@ -127,21 +132,13 @@ export const getAvailableDuration = async (
   //no need: facilityName here
   const { facilityName, selectedDate, selectedTime, selectedFacilityId } =
     req.body;
-  console.log(
-    facilityName +
-      '::' +
-      selectedDate +
-      '::' +
-      selectedTime +
-      '::' +
-      selectedFacilityId
-  );
   try {
     const validDurations = [30, 60, 90]; //customer wanted strict game duration for booking
     // Find bookings for the selected date
     const bookings = await Booking.find({
       facility: selectedFacilityId,
       date: selectedDate,
+      isCancelled: false,
     }).select('facility startTime endTime duration');
 
     //Find possible durations for booking [30,60,90]
@@ -161,7 +158,7 @@ export const getAvailableDuration = async (
         }
       }
     });
-    console.log('valid Duration', validDurations);
+
     res.status(200).json({ validDurations });
   } catch (error) {
     next(new BadRequestError('Invalid Request', error));
@@ -189,10 +186,10 @@ export const getUserBooking = async (
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Filter bookings for today or in the future
+    // Filter bookings for today or in the future. Past bookings are excluded.
     const futureBookings = bookingsByUserSuccess.filter((booking: IBooking) => {
       const bookingDate = new Date(booking.date);
-      return bookingDate >= today;
+      return bookingDate >= today && booking.isCancelled === false;
     });
 
     res.status(200).json(futureBookings);
@@ -202,7 +199,7 @@ export const getUserBooking = async (
 };
 
 // delete booking by user
-export const deleteBookingByUser = async (
+export const cancelBookingByUser = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -228,11 +225,52 @@ export const deleteBookingByUser = async (
         )
       );
     } else {
-      const deleteSuccess = await bookingClientServices.deleteBookingByUser(bookingId);
-      console.log("deleteSuccess controller:: ", deleteSuccess)
-      res.status(204).json(deleteSuccess);
+      booking.isCancelled = true;
+      const cancelSuccess = await bookingClientServices.cancelBookingByUser(
+        booking
+      );
+  
+      res.status(204).json(cancelSuccess);
     }
   } catch (error) {
     next(new BadRequestError('Can not delete.....', error));
   }
 };
+
+// // delete booking by user (KEEP IT)
+// export const deleteBookingByUser = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     //get id from params
+//     const bookingId = req.params.bookingId;
+//     // Fetch the booking from the database
+//     const booking = await Booking.findById(bookingId);
+
+//     // If booking does not exist, throw an error
+//     if (!booking) throw new NotFoundError('Booking not found');
+//     const timeDifferenceInHours = calculateTimeDifference(
+//       booking.date,
+//       booking.startTime
+//     );
+
+//     // Check if the time difference is more than 12 hours
+//     if (timeDifferenceInHours < 12) {
+//       next(
+//         new BadRequestError(
+//           'Cannot cancel the booking as it starts in less than 12 hours'
+//         )
+//       );
+//     } else {
+//       const deleteSuccess = await bookingClientServices.deleteBookingByUser(
+//         bookingId
+//       );
+//       console.log('deleteSuccess controller:: ', deleteSuccess);
+//       res.status(204).json(deleteSuccess);
+//     }
+//   } catch (error) {
+//     next(new BadRequestError('Can not delete.....', error));
+//   }
+// };

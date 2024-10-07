@@ -32,7 +32,6 @@ const FacilityForm = ({
     const fetchOpeningHour = async () => {
       if (openingHourtId !== '') {
         try {
-          console.log('facility inside useeffect', openingHourtId);
           const response = await axiosFetchOpeningHourById(openingHourtId);
           setFormData(response.data); 
         } catch (error) {

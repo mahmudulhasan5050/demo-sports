@@ -7,10 +7,6 @@ import SideBar from './SideBar'
 import HeaderAdmin from './HeaderAdmin'
 
 const LayoutAdmin = () => {
-    const {userCTX} = useUser()
-    const navigate = useNavigate()
-    console.log(userCTX)
-
 
     return (
         <div className="bg-neutral-100 h-screen w-screen overflow-hidden flex flex-row">

@@ -10,9 +10,8 @@ const ForgotPassword = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(email)
+
         try {
-            console.log(email)
             const res = await axiosForgotPassword({email});
             if (res.data) {
                 setTimeout(() => {

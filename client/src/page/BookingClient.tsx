@@ -115,11 +115,6 @@ const BookingClient = () => {
         setDuration(0)
     }
 
-    console.log('time ', time)
-    console.log('facilityId ', facilityId)
-    console.log('Duration', duration)
-    console.log('-------------------------')
-
     return (
         <div className="min-h-screen flex flex-col items-center px-4 mt-10">
             <div className="w-full md:w-1/2 text-center mb-10 flex items-center justify-center">

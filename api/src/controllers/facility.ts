@@ -30,7 +30,7 @@ export const getFacilityById = async(
   next: NextFunction
 )=>{
   const facilityId = req.params.facilityId
-  console.log("facilityId", facilityId)
+
   try {
     const facilityByIdSuccess = await facilityServices.getFacilityById(facilityId)
     res.status(200).json(facilityByIdSuccess)
@@ -96,10 +96,8 @@ export const deleteFacility = async(
   next: NextFunction
 )=>{
   try {
-    console.log('delete controller')
     //get id from params
     const facilityId = req.params.facilityId
-    console.log("facilityId", facilityId)
 
     await facilityServices.deleteFacility(facilityId)
     res.status(204).end()

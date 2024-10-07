@@ -50,7 +50,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ refresh, setBookingId, setR
             setAllFacility(sortedFacilities)
             setBookingId('')
         } catch (error) {
-            console.log(error)
+
             toast.error('Bookings are not available')
         }
     }
@@ -97,12 +97,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({ refresh, setBookingId, setR
         return (
             <td key={`${court._id}-${time}`} className="border p-2 bg-green-200 h-12" rowSpan={slotsToSpan}>
                 <div className="p-2 rounded">
-                    <p>{booking.user.name}</p>
-                    <p>
-                        {booking.startTime} - {booking.endTime}
-                    </p>
-                    <p>{moment(booking.date).format('DD-MM-YYYY')}</p>
+                    <p>{firstLetterUpperCase(booking.user.role)}</p>
+
                     <p>{booking.isPaid ? 'Paid' : 'Unpaid'}</p>
+
                 </div>
             </td>
         )
